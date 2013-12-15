@@ -1,0 +1,617 @@
+\documentclass[11pt, a4paper]{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage{amsfonts, amsmath,  hyperref, 
+natbib, parskip, times, booktabs, dcolumn, lscape, float, graphics}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[toc,page]{appendix}
+\usepackage[round]{natbib}
+\usepackage{eurosym}
+\usepackage{enumerate}
+
+\widowpenalty=900
+\clubpenalty=900
+\hypersetup{
+ colorlinks,
+ linkcolor=blue,
+ urlcolor=blue
+}
+
+
+
+\author{Markus Kainu}
+\title{Otsikko - Title}
+
+%\setlength{\topmargin}{0mm}
+%\setlength{\oddsidemargin}{0mm}
+\setlength{\textwidth}{140mm}
+\setlength{\textheight}{230mm}
+
+
+\begin{document}
+
+\title{SOCIAL ASSISTANCE AND EU 2020 POVERTY TARGET\footnote{Article draft prepared for ESPAnet 10th anniversary conference September 6-8th, 2012 Edinburgh, United Kingdom - \emph{Work in progress. Please, do not cite without permission of author}} \\
+Targeting Performance of Minimum Income Protection at Multidimensional Poverty in Six EU Member States}
+
+
+\author{\textbf{Markus Kainu}\thanks{PhD Student. Aleksanteri institute, University of Helsinki \& Department of Social Research, University of Turku}\\ 
+\href{mailto:markuskainu@gmail.com}{markuskainu@gmail.com}}
+
+\date{\today}
+\maketitle
+
+\begin{abstract}
+The aim of this article is to analyse the capability of social assistance benefits in reaching the poorest households defined according to recent European Union (EU) poverty and social exclusion target criteria. Paper explores the coverage, leakage and targeting performance of social assistance benefits in six EU countries utilizing the latest cross-sectional EU-SILC 2010 dataset. Results provide new insight into poverty reduction capacity of social assistance benefits in meeting the multidimensional EU2020 poverty target. Current social assistance schemes allocate resources evenly across the dimensions giving the highest emphasis on individuals with multiple deprivations.
+
+\end{abstract}
+
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+
+
+\thispagestyle{empty}
+
+
+
+
+\newpage
+%##################################################
+%##################################################
+\setcounter{page}{1}
+%###################################
+%###################################
+%###################################
+\section{Introduction}
+%###################################
+
+
+
+
+
+
+
+
+
+
+
+%##################################################
+
+Issues of conceptualizations and empirical measurement of multidimensional poverty has been discussed in a rich literature by authors following the works of Amartya Sen \citep{sen_development_1999,anand_concepts_1997,atkinson_multidimensional_2003,deutsch_measuring_2005,thorbecke2008,alkire_counting_2010,ferreira_multidimensional_2012}. European Comission took a pioneering step in 2011 as part of the EU2020 growth strategy by introducing a three dimensional set of indicators behind the new target for poverty and social exclusion. The new multidimensional measure replaced the preceding measure of \emph{relative at-risk-of-poverty} by supplementing it with the measures of \emph{severe material deprivation} and \emph{low work intensity}. An individual meeting one or more of these sub-indicators are identified as poor. By this reform the Comission established a new conceptual and analytical framework for multidimensional poverty analysis within Union of 27 countries with a clear political target: \emph{to lift at least 20 million people out of poverty and social exclusion by 2020}. \citep{atkinson_income_2010}
+
+%Social assistance programs and minimum income protection are often described as the last resort safety net of the welfare state due to their strategic role in preventing and alleviating poverty of most vulnerable groups in society. There are abundant literature on different classification of social assistance regimes often resulting in rather complex categorisations. A more relevant stream of research for this setting has been research analysing the linkages between social assistance regimes and poverty and inequality outcomes \citep{nelson_minimum_2009,holsch_poverty_2004,sainsbury_poverty_2002,braithwaite_poverty_2000,kuivalainen_comparative_2004,behrendt_at_2002}.
+
+The interplay between welfare state policies and poverty reduction has received attention in comparative studies in over the years \citep{mitchell_income_1991,korpi_paradox_1998,kenworthy_social-welfare_1999,kenworthy_progress_2011}. Main focus has been at the distributional outcomes of welfare state policies. Several studies have also emphasized the social assistance schemes linking the schemes with the poverty outcomes \citep{nelson_minimum_2009,behrendt_at_2002,kuivalainen_comparative_2004}. The attempts to connect welfare state benefits with other forms of poverty than income poverty have been very few, with the exception a recent study by \citet{nelson_counteracting_2012} on link between social assistance benefit levels and material deprivation. Nelson finds a link between low levels of social assistance and high rates of material deprivation when studying 26 EU countries. As the new EU2020 target incorporates not just material deprivation with income poverty but also the indicator for low work intensity, this paper utilizes a multidimensional setting and analyses the effectiveness of social assistance benefits in addressing the independent and overlapping dimensions of EU2020 poverty from comparative perspective in six EU countries. 
+
+Paper is divided in six sections. Section 2 will discuss the EU2020 poverty target in more detail. Section 3 portraits the European poverty through these indicators. The research design with data and methods is described in section 4 and analyses documented in section 5. Some concluding remarks are made in section 6.
+
+%##################################################
+%##################################################
+\section{EU2020 poverty target}
+%##################################################
+%##################################################
+As a part of the new EU 2020 growth strategy, EU has set new indicator and targets for poverty reduction for coming ten years. The new strategy introduces \textit{material deprivation} and \textit{low work intensity} as equally important indicators together with \textit{relative at-risk-of-poverty} in composing the new measure for the \emph{risk poverty and social exclusion}. From the perspective of poverty research the new formulation of indicators looks as an improvement compared to previous unidimensional definition from 2006 with at-risk-of poverty threshold set to 60 percent of the national equalized median income \citep{commission_portfolio_2006}. After the enlargements of EU it soon became apparent that statistics on relative income positions sometimes failed to capture essential differences in living standards across the member states \citep{marlier_eu_2007}. The fruitfulness of non-monetary poverty indicators was recognized in the leading scholarly work related to the process of developing common benchmarks to evaluate social development in the EU countries \citep{atkinson_social_2002}. In 2009 the comission also decided to monitor material deprivation, complementing the income based conceptualization of poverty that were established a few years earlier.
+
+The idea to study material deprivation is not new, but has been on the agenda in poverty research since the late 1970s at least, particularly in the Ireland, the United Kingdom and the United States \citep{townsend_poverty_1979,mack_poor_1985,nolan_resources_1996}. According to this approach the focus of analysis is not income, but rather goods and services households can consume. People unable to afford certain basic items are considered to be materially deprived.  Although the conceptualization and measurement of material deprivation are by no means straightforward, there seems to be some agreement that assessments based on consumption tend to produce more reliable figures on poverty than evaluations in terms of income. For example, respondents in low income household often tend to underreport income, something that may bias poverty estimates based on income surveys.
+
+Although such combined strategies in the measurement of poverty may improve the validity of the findings, for example, by including only those who cannot consume for financial reasons, the results may be problematic to interpret from a policy perspective. One reason is that public programs may have different effects on income and consumption, and certainly, on low work intensity. Thus, there is an important policy dimension to poverty measurement, which has not yet been sufficiently recognized in the literature. In light of the new EU 2020 targets, where material deprivation seems to be placed on equal footing to that of relative income poverty for measuring social progress, it is crucial to move research ahead by incorporating also social policy structures to the comparative analysis of material deprivation. Whereas the income approach to poverty measurement implicitly links social stratification to equality of opportunity, the strategy to focus on consumption and material deprivation concerns more equality of outcomes \citep{ringen1988direct}.
+
+% miltei suoraa lainausta!!!
+
+Despite the methodological improvements the political process behind and implementation of the targets left a lot to hope for. As \citet{copeland_varieties_2012} puts it, new target was the result of a political opportunity seized upon by a number of pro-social policy actors (some in the European Commission, the Parliament, certain Member States as well as non-governmental organizations), rather than an agreement to further Europeanize social policy. In addition, the target is a compromise in that it is constituted quite diversely in terms of whether it will succeed by addressing income poverty, severe material deprivation and/or household joblessness. Further on, the target allows much leeway in response by the Member States, in terms of both which definition they will use and what level of ambition they set for their target. As such, the target risks both incoherence as an approach to social policy and ineffectiveness in terms of precipitating significant action by the Member States to address poverty and social exclusion \citep{copeland_varieties_2012}.
+
+The formulation of indicators has also been critized. \citet{nolan_eu_2011} raised a number of important issues and questionized both the indicators for low work intensity and material deprivation ability to identify those individuals excluded from customary EU living patterns due to lack of resources at the national level. Individual identified poor according to low work intensity indicator differed greatly from other two groups based on social class. The elements of the deprivation index should also be reconsidered.
+
+%One major argument for adopting this multidimensional measures was the need to better understand the characteristics and magnitude of poverty especially in the new member states with lower living standards. By comparing several new and old, low and high income, member states and this paper aims to debate not only the role of benefit type, but also the role of the \textit{"nature of poverty"} that greatly differs between members states in enlarged EU in the interplay between minimum income protection and poverty. Analyses are based on latest EU-SILC dataset.\citep{simons2002extending}
+\newpage
+\section{Poverty in Europe according to EU2020 poverty target}
+
+Figures 1-5 display some of key trends in the evolution of European poverty. Figure 1 shows the  population shares of three sub-indicator and the joint indicator of at risk of poverty and social excusion in all EU27 countries. The previous measure on top left to the current composite measure at bottom right portrait a very different picture of the poverty in Europe in past years. Most notable difference is how the new measure captures the lower living standards of the new postsocialist member states that remained masked in the previous relative income measure. This is largely due to indicator of material deprivation.  
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig1} \caption[Population shares of at risk of poverty and social exclusion and it's sub-indicators in 2004 - 2011]{Population shares of at risk of poverty and social exclusion and it's sub-indicators in 2004 - 2011. Source: Eurostat 2012\label{fig:chunk_fig1}}
+\end{figure}
+
+\end{knitrout}
+
+%######################################################################
+%######################################################################
+
+
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+##             geo.time             type variable value code         group
+## 1  EU (27 countries) social.exclusion     2010  23.4               EU27
+## 2            Belgium social.exclusion     2010  20.8   BE       western
+## 3           Bulgaria social.exclusion     2010  41.6   BG postsocialist
+## 4     Czech Republic social.exclusion     2010  14.4   CZ postsocialist
+## 5            Denmark social.exclusion     2010  18.3   DK       western
+## 6            Germany social.exclusion     2010  19.7   DE       western
+## 7            Estonia social.exclusion     2010  21.7   EE postsocialist
+## 8            Ireland social.exclusion     2010  29.9   IE       western
+## 9             Greece social.exclusion     2010  27.7   EL       western
+## 10             Spain social.exclusion     2010  25.5   ES       western
+##    value rank
+## 1   23.4 18.0
+## 2   20.8 15.0
+## 3   41.6 30.0
+## 4   14.4  2.0
+## 5   18.3  9.5
+## 6   19.7 12.0
+## 7   21.7 16.0
+## 8   29.9 25.5
+## 9   27.7 23.0
+## 10  25.5 22.0
+\end{verbatim}
+\end{kframe}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig2} \caption[Relative and absolute population shares of at risk of poverty and social exclusion and at sub-indicators in 2010]{Relative and absolute population shares of at risk of poverty and social exclusion and at sub-indicators in 2010. Source: Eurostat 2012\label{fig:chunk_fig2}}
+\end{figure}
+
+\end{knitrout}
+
+
+%######################################################################
+%######################################################################
+
+Figure 2 shows a cross-sectional picture of both relative and absolute population shares of the EU2020 poverty measure. Figure underlines two obvious issues. First, the most poverty striken countries are either found in the postsosicialist space or in group sufferefing most from the current financial crisis. Second, in terms of meeting the target of lifting at least 20 million people out of poverty and social exclusion by 2020, the attention will be elsewhere, at the large member states. Reducing poverty in millions is easier in countries with millions of poor.
+
+
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig4} \caption[Dependency between at-risk-of-poverty rate and severe material deprivation in 2010 for all countries and 2004 - 2010 for focus countries]{Dependency between at-risk-of-poverty rate and severe material deprivation in 2010 for all countries and 2004 - 2010 for focus countries\label{fig:chunk_fig4}}
+\end{figure}
+
+\end{knitrout}
+
+
+%######################################################################
+%######################################################################
+
+
+Figures 3,4 and 5 shed light to the interdependence of subindicator in scatterplots at cross-sectional setting on left and over time for focus countries of the study on the right. Figure 3 shows a clear positive correlation between income poverty and material deprivation. For old member states the development over time have been small, but Poland and Romania have improved in both dimensions.
+
+
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig5} \caption[Dependency between at-risk-of-poverty rate and low work intensity in 2010 for all countries and 2004 - 2010 for focus countries]{Dependency between at-risk-of-poverty rate and low work intensity in 2010 for all countries and 2004 - 2010 for focus countries\label{fig:chunk_fig5}}
+\end{figure}
+
+\end{knitrout}
+
+
+%######################################################################
+%######################################################################
+
+Figure 4 shows the dependency between income poverty and low work intensity and the linkage looks less straightforward. Correlations are low, though positive, and the movement over time has been less consistent. This is true also for material deprivation and low work intensity in figure 5. Correlation between  material deprivation and low eork intensity remains low most of the poverty reduction over time has happened within material deprivation. Finding by \citet{nolan_eu_2011} about the inconsistencies between the subindicators are supported here.
+
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig7} \caption[Dependency between severe material deprivation and low work intensity in 2010 for all countries and 2004 - 2010 for focus countries]{Dependency between severe material deprivation and low work intensity in 2010 for all countries and 2004 - 2010 for focus countries\label{fig:chunk_fig7}}
+\end{figure}
+
+\end{knitrout}
+
+
+
+%######################################################################
+%######################################################################
+
+
+%\section{The impact of social assistance in Europe}
+
+
+
+%######################################################################
+%######################################################################
+\newpage
+%######################################################################
+%######################################################################
+\section{Research design}
+%######################################################################
+%######################################################################
+
+\subsection{Purpose of the study}
+
+The main question in this research is \emph{to what extend social assistance schemes are able to address the poverty defined as in EU2020 poverty target?} Rather than analysing the performance of social assistance schemes per se, this article aims at finding whether current minimun income protection schemes are able to meet the poor individuals identified according to the multidimensional poverty approach the new target utilizes. Poverty alleviation is a main objective of social assistance schemes and therefore it is relevant to analyze to what extend this objective can be fullfilled in these new conditions.
+
+\subsection{Data}
+
+The data on which the analysis are based on comes from the 2010 cross-sectional file of EU Survey on Income and Living Conditions (EU-SILC). Dataset consist of cross-sectional data including variables on income, poverty, social exclusion, housing and other living conditions in EU. EU-SILC is conducted by the member states and coordinated by Eurostat. 
+
+The analysis is simplified by limiting the number of countries to six using two criterias. First, as the EU2020 poverty target is a quantitative one and formulated as millions of individuals, the countries chosen are the largest by population as those they will be in key role in meeting the target. Second, to enrich the comparative setting, the countries chosen represent both the new (Romania and Poland) and old (United Kingdom, Italy, Denmark, Germany) EU member states as well as the three welfare regimes by \citet{esping-andersen_three_1990} with post-socialist Romania and Poland and Southern European Italy.
+
+Analysis is done at level of individuals. The number of respondents in the EU-SILC cross-sectional files varies across the studied countries from 48000 (Italy) to 15000 (Denmark) respondents. In cases where the variables of interest are measured at the household level each individual is ascribed the household value. 
+
+%Data on income and social benefits are collected both at household and individual level. Household data includes aggregates for gross and disposable income and household related social benefits. For the analysis here the amount of individual benefits (eg. unemployment benefit or old-age benefits) are aggregated at the household level. The composition of the key income variables are explained in detail in appendix 1. Macro level data on social spending is obtained from European system of integrated social protection statistics (ESSPROS).
+
+Key interest in this article is on social assistance benefits. Information on social assistance is provided through a variable \textit{social exclusion, elsewhere not classified}. It incorporates two components, namely on income support (periodic payments to people with insufficient resources) and other cash benefits (support for destitute and vulnerable persons to help alleviate poverty or assists in difficult situations). In addition, data is also available on means-tested housing allowances. The social assistance variable used in this paper is constructed by joining the two components, i.e. social exclusion not elsewhere classified and means-tested housing allowance.
+
+%#########################################################
+\begin{table}[H]
+\begin{center}
+\caption{Focus countries}
+{\footnotesize
+\begin{tabular}{p{3cm}p{3cm}p{2cm}}
+  \toprule
+  \textbf{Country} & \textbf{Regime} &  \textbf{Population (million)} \\ \midrule
+  Romania & Low income Postsocialist & 21.5  \\
+  Poland & Middle income Postsocialist & 38.1\\
+  Germany & Continental Europe & 82.2 \\
+  United Kingdom & Liberal regime & 61.2 \\
+  Italy & Southern European &  59.6\\
+  Denmark & Nordic & 5.5\\
+ \bottomrule
+ \end{tabular}
+}
+\end{center}
+\end{table}
+
+
+\subsection{Methods}
+
+From methodological pewrspective the new poverty measure challenges the  methods of analysing the poverty and distributional outcomes of income redistribution. When poverty is something more than just relatively low income. The main research question \emph{how social assistance is targeted at EU2020 targets poverty and social exclusion} asks for two kind of methods. 
+First, the poor individuals have to be identified and poverty measures aggregated, and 
+second, the targeting performance of social assistance benefits estimated at these poverty measures. Methodology for the first task, both for identifying the poor and for aggregating the poverty measure, is borrowed from Eurostat and follows the formulation of EU2020 target for poverty and social exclusion \citep{atkinson_income_2010}. Simple Boolean algebra is used to determine the conjunction or overlap between dimensions. Methodology for coverage, leakage and targeting performance is built on common methodology in development economics \citep[primarily][]{coady_targeting_2004} and is applied here in multidimensional setting. 
+
+Analysis are done with \textbf{R} \citep{R_2012} using packages \textbf{survey} \citep{survey_2012}, \textbf{laeken} \citep{laeken_2012}, \textbf{venneuler} \citep{venneuler_2011} and \textbf{ggplot2} \citep{ggplot_2009}. The partial R-code can be found here \href{http://research.muuankarski.org/code/}{research.muuankarski.org/code/}.
+
+\subsubsection*{Identifying the poor}
+
+Identification of poor individuals follows the Eurostat definitions of EU2020 poverty target \citep{atkinson_income_2010}. Target indicator at risk of poverty and social exclusion sums up the number of individuals who are at risk of poverty, severely materially deprived or living in households with very low work intensity. Individuals present in several sub-indicators are counted only once.
+
+First subindicator, \textit{at-risk-of-poverty} is indirect and relative notion of poverty measured at 60\% of national median income \citet{atkinson_social_2002}. Second subindicator, severe material deprivation, relates to economic strain and household durables. According to Eurostat, \emph{Severely materially deprived persons have living conditions greatly constrained by a lack of resources and cannot afford at least four of the following: to pay rent or utility bills; to keep their home adequately warm; to pay unexpected expenses; to eat meat, fish or a protein equivalent every second day; a week holiday away from home; a car; a washing machine; a colour TV; or a telephone.} Third subindicator, people living in households with very low work intensity, refers to a situation where a person is aged 0-59 and the working age members in the household worked less than 20 \% of their potential during the past year.
+
+In resulting dataset each individual had either 1 or 0 for each of three deprivations. Individuals deprived in more than one dimension were identified using simple Boolean algebra resulting variable of joint distribution of deprivation. As the dimensions are different adding them up in any other way is not advisable. One can say that an individual deprived in terms of income and material durables is more deprived and income poor only, but one cannot compare with someone deprived in terms of work and material deprivation. This measure does not give satisfying asnwer to a question how deprived individual is. Each dimensions is 1 or 0 and severity of deprivation is therefore not captured.
+
+%###################################
+%###################################
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.5\textwidth]{venn/venn_example.pdf}
+      \caption{Independent and overlapping subgroups of EU2020 poverty target used in analysis}
+\end{figure}
+%###################################
+%###################################
+
+One way presenting of such data is trough a Venn diagrams as proposed by \citet{ferreira_multidimensional_2012} and applied by \citet[p. 127]{atkinson_income_2010} in very similar context as here. Figure 6 presents the analytical frame of this study as a Venn diagram showing the six main subgroups formed by three overlapping indicators. 
+
+\subsubsection*{Assessing the targeting performance of social assistance}
+%\subsubsection{Coverage, leakage and targeting}
+
+Targeting performance of social assistance schemes is analysed through coverage, targeting errors and Coady-Grosh-Hoddinot indicator of targeting performance. All measures are calculated for each individual subindicators and for all six subgroups.
+
+Coverage rates are calculated as follows, where $N_{p,1}$ is the number of poor households in the program and $N_p$ is the total number of poor households.
+
+\begin{equation}
+C = \frac{N_{p,1}}{N_p}
+\end{equation}
+
+%Two types of targeting errors are calculated for all groups. Type I errors, errors of inclusion, happen when non-poor individuals are included in the program due to inaccurate eligibility specification, incentive effective effects, elite capture etc. Type 1 error is also known as leakage. Type II errors, errors of exclusion, takes place when the poor are excluded from program benefits due to budgetary limitations, geographical delimitations of program scope, lack of outreach to inform the poor of a program, etc.
+
+A common approach to evaluate the targeting performance of means tested transfer instruments is to compare leakage (Type 1 error) and undercoverage (Type 2 error) rates. Leakage is the proportion of those individuals reached by the program (i.e., are “in” denoted by i, as opposed to “out of,” denoted by o, the program) who are classified as nonpoor (errors of inclusion) or 
+
+\begin{equation}
+L = \frac{N_{np,i}}{N_i}
+\end{equation}
+
+where $N_{np,i}$ is the number of nonpoor individuals in the program and $N_i$ is the total number of individuals in the program.
+
+Undercoverage is the proportion of poor individuals who are not included in the program (errors of exclusion), 
+
+\begin{equation}
+UC = \frac{N_{p,0}}{N_p}
+\end{equation}
+
+where $N_{p,o}$ is the number of poor individuals who are left out of the program and $N_p$ is the total number of poor individuals.
+
+Targeting differential is the coverage of the poor minus leakage
+
+\begin{equation}
+TD = C - L
+\end{equation}
+
+
+Both the coverage and targeting errors are "either or" type of measures of extend of the program and not captivating the generosity or the value of the benefit. To find out are the benefit rates higher for deprived than for non-deprived a so called Coady-Grosh-Hoddinot indicator is being applied. Measure is based on a comparison of actual performance to a common reference outcome, namely, the outcome that would result from neutral (as opposed to progressive or regressive) targeting. A neutral targeting outcome means that both the poor and the non-poor receives equal share (relative to group size) the transfer budget. A universal program in which all individual receive identifical benefit would targeting neutral. The indicator used in this analysis is constructed by dividing the actual outcome by the appropriate neutral outcome. For example, if the 40 \% of the population qualifies as poor and they receive 60 percent of the benefits, then the indicator of performance is calculated as (60/40) = 1.5. A higher value is associated with better targeting performance. A value of 1.5 means that targeting has led to the target group (here the poor individuals) receiving 50 percent more than they would have received under a universal intervention. A value greater than 1 indicates progressive targeting; less than 1, regressive targeting; and unity denotes neutral targeting.
+
+
+%###################################
+%###################################
+%###################################
+%###################################
+\newpage
+\section{Results}
+%###################################
+%###################################
+
+The analysis is divided in three subsections. In the first section focus is on the descriptive analysis of different dimensions of poverty target. Second section introduces the social assistance benefits and analyses the coverage and leakage rates in the focus countries. Third section shapes up the analysis by incorporating the value of the social assistance benefit and presents results on targeting performance using Coady-Grosh-Hoddinott indicator.
+
+\subsection{Dimensional overlap of indicators}
+
+
+
+
+%###################################
+%###################################
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.8\textwidth]{venn/venn_merge_final.pdf}
+      \caption{Independent and overlapping population shares of EU2020 poverty indicators in Venn-diagrams. Source: EU-SILC 2010}
+\end{figure}
+%###################################
+
+Venn-diagrams in figures 8 and 9 are presenting the relative and absolute population shares of independent and overlapping dimensions of EU2020 poverty target. The larger the overlap between deprivations, the greater is the extent of interdependence. First, looking at the figure 8 with relative population shares one can note that relative at-risk-of-poverty rate is the biggest group in all countries but Romania. Low work intensity ranks the second in Western Europe, whereas material deprivation is a major challenge in postsocialist countries. Severely materially and only materially deprived individuals in Romania have the biggest population share of all subgroups in studied countries with 13 percent share. Same share in Western European countries varies from 0.5 in Denmark to 1.8 in UK. In addition, in all countries the independent share of each dimensions is less than the overlapping share.
+
+%###################################
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.8\textwidth]{venn/venn_merge_final_pop.pdf}
+      \caption{Independent and overlapping population sizes of EU2020 poverty indicators in Venn-diagrams. Source: EU-SILC 2010}
+\end{figure}
+%###################################
+%###################################
+
+When looking at the absolute population shares in figure 9 we can see the obvious that in this group of countries the total population size determines the size of poverty. Greatest number of individual at risk or income poverty are found in Italy, 6.9 million. Germany has the greatest number of individuals, 2.8 million, living in low work intensity households. The greatest number of materially deprived individuals are found in Romania, 2.8 millions.
+
+\subsection{Targeting performance of social assistance benefits}
+
+As we observed in the previous section both the proportional sizes of different dimensions and degree of overlap vary between the countries, the post-socialist vs. Western Europe divide being a major factor. The size of deprived population and the degree of overlap between dimensions do certainly play a major role in the capability of social assistance to address the poverty. Another issues naturally is the extend and generosity of the benefit scemes. Table 2 presents some figures on overall extend and generosity of social assistance benefits based on EU-SILC data.
+
+%#########################################################
+\begin{table}[H]
+\begin{center}
+\caption{Key indicators of social assistance schemes. Source:EU-SILC 2010}
+{\footnotesize
+\begin{tabular}{p{2.5cm}p{2.5cm}p{2.5cm}p{3cm}p{3cm}}
+  \toprule
+  \textbf{Country} & \textbf{Mean benefit \euro} & 
+  \textbf{Poverty line \euro} & \textbf{Mean benefit/ poverty line (\%)} &
+  \textbf{Total coverage (\%)} \\ \midrule
+  Romania & 34 & 1264 & 2.6 & 23.8\\
+  Poland & 32 & 2679 & 1.2 & 6.4\\
+  Germany & 461 & 11407 & 4.0 & 11.6\\
+  United Kingdom & 1105 & 10604 & 10.4 & 18.0\\
+  Italy & 93 &  9819 & 1.0 & 4.6\\
+  Denmark & 215 & 15352 & 1.4 & 11.6\\
+ \bottomrule
+ \end{tabular}
+}
+\end{center}
+\end{table}
+%######################################################################
+%######################################################################
+
+
+\subsubsection*{Coverage}
+
+Table showed the overall coverage rates for social assistance scemes. This section focuses on how social assistance covers the different subgroups of poor individuals. Coverage rate equals to share of social assistance recipients in particular group. Figure 9 shows the coverage and poverty rates for each three individual EU2020 subindicator as well for the joint indicator of at risk of poverty and social exclusion. The right column of each four plots presents the coverage for that particular group of poor. The blue bar with black numbers represents the particular rate of poverty/deprivation and yellow bar the coverage rate of that group as percent from 1 to 100.
+
+
+%######################################################################
+%######################################################################
+
+
+
+
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig21} \caption[Coverage rates of social assistance benefits on at risk of poverty and social exclusion and subindicator in 2010 (poverty rates with blue bars and black numbers)]{Coverage rates of social assistance benefits on at risk of poverty and social exclusion and subindicator in 2010 (poverty rates with blue bars and black numbers). Source: EU-SILC 2010\label{fig:chunk_fig21}}
+\end{figure}
+
+\end{knitrout}
+
+
+%######################################################################
+%######################################################################
+
+Income poverty vary only slightly between countries, but variation in coverage rates is lot higher. In each countries the coverage is higher for poor indidividuals, especially in the case UK, Romania and Germany. Rates for material deprivation vary greatly between countries with postsocialist Poland and Romania with highest rates. Social assistance cover these individuals at slightly worse rate in Romania, but better in all other countries with rates over 60 percent in UK, Denmark and Germany. Again the rates for low work intensity are consistent across the countries, but the coverage rates vary greatly. Social assistance in UK covers over three fourths of the jobless individuals that consist 9.8 percent of the population. Rate of joblessness is similar in Italy, but the social assistance covers only 9.9 percent of the deprived. The joint indicator smoothens the variation in both respect, leaving the UK and Germany with highest and Italy and Poland with lowest coverage rates but with equally high rates of at risk of poverty and social exclusion.
+
+Explanation here\footnote{Coverage rates are calculated out of particular poverty rate. For example in UK the at-risk of poverty rate was 16.1 and social assistance covered 48.6 percent of those poor}
+
+Similar figures are presented for individual and overlapping subgroups (see figure 7) in figure 11 by focus countries. The three groups at the bottom (b,c,d) are the  subgroups consisting of only unidimensionally deprived individuals. The next three groups (e,f,g) include individual deprived in two subindicators. The group on top (h) are the individual deprived in all dimensions. These individuals live in households that are ar risk on income poverty, are severily materially deprived and have low work intensity.
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig26} \caption[Coverage rates of social assistance benefits on independent and overlapping population shares of EU2020 poverty target in 2010 (poverty rates with blue bars and black numbers)]{Coverage rates of social assistance benefits on independent and overlapping population shares of EU2020 poverty target in 2010 (poverty rates with blue bars and black numbers). Source: EU-SILC 2010\label{fig:chunk_fig26}}
+\end{figure}
+
+\end{knitrout}
+
+
+The rates or deprivation are generally higher in unidimensional groups as expected, though the union of income poverty and material deprivation in postsocialist and income poverty and low work intensity in Western Europe also shows high rates. A vague and expected trend can be seen where the coverage rate is increasing with the severity of deprivation, meaning that coverage rates are higher for individual with multiple deprivations. A prime examples of that are Germany, Romania and UK. As for the group h, individuals deprived in all dimensions, the coverage rates climb up to 82 and 94 percents in Germany and UK, respectively. The population share of this group is small in all countries, varying from 0.5 percent in Denmark to 2.2 in Romania. The poor performance of Italian social assistance benefits becomes more evident in this setting.
+
+\subsubsection*{Targeting Errors}
+
+One side of targeting performance of social assistance are the targeing errors. Table 3 presents the type 1 errors (leakage) for each country and type 2 errors (undercoverage) and targeting differentials (coverage minus leakage) for each poverty subgroup in each country. The lower the both errors are the better (pro-poor) targeting is, as opposed to targeting differential, in which higher value indicates better targeting.
+
+Germany stands out with good performance across all subgroups, whereas Italy does a lot worse. Targeting differentials are lowest for individual who are only work poor indicating that those are most out of reach of social assistance. Group with individual deprived in all three dimensions is having the highest targeting differential.
+
+
+
+
+%######################################################################
+%######################################################################
+
+
+\begin{table}[H]
+\begin{center}
+\caption{Targeting errors and targeting differentials}
+{\scriptsize
+\begin{tabular}{llrrrrrr}
+  \hline
+\textbf{Measure} & \textbf{deprivation subgroup} & \textbf{DE} & \textbf{DK} & \textbf{IT} & \textbf{PL} & \textbf{RO} & \textbf{UK} \\ 
+  \hline
+\multicolumn{2}{l}{Type 1 error (leakage)} & 25.20 & 47.20 & 51.80 & 32.40 & 35.60 & 35.40 \\ 
+  Type 2 error (undercoverage) & b.IncomePoor & 72.20 & 82.20 & 93.40 & 87.20 & 60.00 & 68.00 \\ 
+  Targeting differential & b.IncomePoor & 2.50 & -29.60 & -44.90 & -19.90 & 4.20 & -3.50 \\ 
+  Type 2 error (undercoverage) & c.MaterialPoor & 69.20 & 24.00 & 85.50 & 90.70 & 74.00 & 65.10 \\ 
+  Targeting differential & c.MaterialPoor & 8.10 & 32.80 & -39.30 & -23.10 & -9.40 & -2.10 \\ 
+  Type 2 error (undercoverage) & d.WorkPoor & 78.50 & 38.00 & 95.70 & 94.40 & 79.90 & 27.40 \\ 
+  Targeting differential & d.WorkPoor & -4.60 & 15.70 & -47.50 & -28.60 & -16.40 & 36.50 \\ 
+  Type 2 error (undercoverage) & e.IncomePoor\&MaterialPoor & 39.60 & 41.50 & 88.10 & 75.50 & 41.30 & 52.40 \\ 
+  Targeting differential & e.IncomePoor\&MaterialPoor & 34.80 & 12.80 & -37.50 & -8.90 & 23.30 & 14.60 \\ 
+  Type 2 error (undercoverage) & f.IncomePoor\&WorkPoor & 37.80 & 70.50 & 90.40 & 71.10 & 60.90 & 31.50 \\ 
+  Targeting differential & f.IncomePoor\&WorkPoor & 36.80 & -17.80 & -42.50 & -3.00 & 6.10 & 33.80 \\ 
+  Type 2 error (undercoverage) & g.MaterialPoor\&WorkPoor & 48.00 & 17.20 & 79.10 & 84.00 & 59.90 & 7.40 \\ 
+  Targeting differential & g.MaterialPoor\&WorkPoor & 24.80 & 36.10 & -31.80 & -12.40 & 6.10 & 53.50 \\ 
+  Type 2 error (undercoverage) & h.IncomePoor\&MaterialPoor\&WorkPoor & 17.70 & 75.30 & 75.40 & 56.80 & 37.40 & 5.60 \\ 
+  Targeting differential & h.IncomePoor\&MaterialPoor\&WorkPoor & 56.60 & -27.20 & -25.10 & 12.60 & 28.00 & 59.00 \\ 
+   \hline
+\end{tabular}
+}
+\end{center}
+\end{table}
+%######################################################################
+%######################################################################
+
+
+%######################################################################
+%######################################################################
+
+
+
+%######################################################################
+%######################################################################
+
+\subsubsection*{Targeting performance}
+
+In the final section of analysis the Coady-Grosh-Hoddinot indicator will be used to shed more light into capacity of social assistance benefits to reduce poverty by taking the value of the transfers into account. Indicator used here is explained in detail in section 4, but to summarize it, a value greater than 1 indicates progressive targeting, whereas value less than 1 means regressive targeting. Value of 1 denotes neutral targeting \citep{coady_targeting_2004}
+
+Figure 13 presents the values of Coady-Grosh-Hoddinot indicator for for each three individual EU2020 subindicator as well for the joint indicator of at risk of poverty and social exclusion. The dotted grey line marks the line of neutral targeting and values above it account for progressive targeting.
+
+As for income poor individuals the indicator show a great variations between countries, with Italy having a regressive targeting while in Germany the income poor are receiving nine times higher benefits than income non-poor. Differences level when looking at the material deprivation with Denmark and Italy improving the performance. As for the low work intensity the German, Danish and British system perform the best. Overall targeting performance at joint indicator shows Italy with nearly neutral targeting and on the contrary, Germany with highly progressive targeting with value of 14.2.
+
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig28} \caption[Coady-Grosh-Hoddinott indicator of targeting performance of social assistance benefits on at risk of poverty and social exclusion and sub-indicators]{Coady-Grosh-Hoddinott indicator of targeting performance of social assistance benefits on at risk of poverty and social exclusion and sub-indicators. Source: EU-SILC 2010\label{fig:chunk_fig28}}
+\end{figure}
+
+\end{knitrout}
+
+
+%######################################################################
+%######################################################################
+Corresponding figures for independent and overlapping population shares of EU2020 poverty target are presented in figure 14. Again, the independent value of each dimension are at the bottom and overlapping groups higher up. In UK, Germany, Poland and Romania the targeting performance improves when there is more overlap between countries, with Poland and Romania having the highest targeting at individual deprived in all three dimensions of 26 and 16, respectively. UK, Germany and Denmark record highest targeting at individual deprived both in materially and in work intensity, with the highest value of 34.5 in Germany. This means, that individuals belonging to this group receive, on average, 34.5 times higher social assistance benefits than non-poor individuals.
+
+%######################################################################
+%######################################################################
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\maxwidth]{figure/chunk_fig29} \caption[Coady-Grosh-Hoddinott indicator of targeting performance of social assistance benefits on independent and overlapping population shares of EU2020 poverty target]{Coady-Grosh-Hoddinott indicator of targeting performance of social assistance benefits on independent and overlapping population shares of EU2020 poverty target. Source: EU-SILC 2010\label{fig:chunk_fig29}}
+\end{figure}
+
+\end{knitrout}
+
+
+%######################################################################
+%######################################################################
+
+
+\section{Conclusions}
+
+The aim of the paper was to analyse to what extend current social assistance schemes are capable of addressing the poor individual identified according to new EU2020 poverty target. As the political target is set in absolute terms as to \emph{lift at least 20 million people out of poverty and social exclusion by 2020}, five of the EU six largest countries added with Denmark were chosen for the analysis.
+
+The link between minimum income protection policies and income poverty is obvious and to some extend also with material deprivation \citep{nelson_counteracting_2012}. However, the link between low work intensity is a lot less obvious. Reduction of low work intensity is calling for very different kind of policy measure and effect of social assistance is indirect at best. Still, social assistance being the key political measure in alleviation of poverty, it is essential to analyse to what extend these scemes are able to meet with the new formulation of poverty.
+
+When looking at the overlap of subindicators it is clear that each of these indicators are equally apart from each other and the overlap is only modest. Low work intensity is not more self-contained than material deprivation. The relative share of dimensions varies especially between old and new member states: material deprivation is higher and low work intensity lower in Romania and Poland than in their Western counterparts. However, when looking at the absolute figures one can say that the population size dictates. Highest number of poor are living in the most populous member countries, which was certainly know when setting up the target of 20 million.
+
+Despite the independence of these dimensions of poverty the social assistance is treating them relatively equally. Main variation is found between countries than between poverty subgroups, but this calls for more precise explorative analysis. When looking at Coady-Grosh-Hoddinott indicator the individual deprived in terms of low work intensity are actually benefiting more from the social assistance than income poor in all old member states. 
+
+This analysis suggests that, in this particular context, policies that are directed exclusively towards one of the indicators may fail to reduce the degree of deprivation of a large proportion of individuals. From the policy perspective it is important to monitor all the three indicators, but equally important is to pay attention the degree of overlap as it will also help shape policies to address these particular shortfalls.
+
+
+\addcontentsline{toc}{section}{References}
+\bibliography{bibtex}
+\bibliographystyle{apa-good}
+
+
+%\begin{appendices}
+%\section{Some more figures}
+
+%\end{appendices}
+
+
+
+\end{document}

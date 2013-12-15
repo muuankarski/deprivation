@@ -1,0 +1,936 @@
+  
+
+```{r setup, echo = F}
+library(knitr)
+opts_knit$set(out.format = 'html')
+opts_chunk$set(highlight = TRUE, tidy = FALSE)
+render_html()
+
+#../venn/
+#../venn/
+```
+
+
+# Social assistance and EU2020 poverty target
+</br>
+</br>
+</br>
+<center>
+ESPAnet 2012, Edinburgh
+
+[research.muuankarski.org/code](http://research.muuankarski.org/code)
+
+[Markus Kainu](http://muuankarski.org)
+
+</center>
+
+---
+### Content
+
+1. What and Why? 2 min 
+2. EU2020 poverty target 1 min
+3. Poverty in EU 2 min
+4. Data & Methods 2 min
+5. Overview of results 4 min
+5. Concluding remarks 3 min
+---
+
+# What and Why?
+
+---
+### Starting point
+
+* As a part of the new EU 2020 strategy, EU has set new indicator and targets for poverty reduction for coming ten years
+
+* The new strategy introduces *material deprivation* and *low work intensity* as equally important factors together with *relative at-risk-of-poverty* in composing the new measure for *poverty and social exclusion*
+
+---
+
+### Purpose of the study
+
+* The main question in this research is \emph{to what extend social assistance schemes are able to address the poverty defined as in EU2020 poverty target?} 
+* Rather than analysing the performance of social assistance schemes per se, this article aims at finding whether current minimun income protection schemes are able to meet the poor individuals identified according to the multidimensional poverty approach the new target utilizes. 
+* Poverty alleviation is a main objective of social assistance schemes and therefore it is relevant to analyze to what extend this objective can be fullfilled in these new conditions.
+* Post-socialist vs. market democracies
+* Country selection
+---
+
+### Introduction
+
+The formulation of EU2020 target for poverty and social exclusion introduced two key changes:
+
+1. A **quantitative target** of *lifting at least 20 million people out of the risk of poverty and social exclusion by 2020*, and
+2. A **multidimensional measure of poverty** for identifying the poor including *1) income poverty, 2) material deprivation and 3) low work intensity*
+
+---
+# EU2020 poverty target
+
+
+---
+### 1. Relative at-risk-of-poverty 
+
+![plot](../venn/eu2020venn1.png)
+
+---
+### 2. Material deprivation
+
+![plot](../venn/eu2020venn2.png)
+
+---
+### 3. Low work intensity
+
+![plot](../venn/eu2020venn3.png)
+
+---
+### 4. At-risk-of poverty and social exclusion
+
+![plot](../venn/eu2020venn4.png)
+
+
+---
+# Poverty in Europe
+
+```{rload, echo=FALSE, message=FALSE, warning=FALSE}
+
+setwd("~/workspace/eusilc/espanet2012/")
+
+# PACKAGES
+# Eurostat data
+library(knitr)
+library(XML)
+# for data manipulation
+library(car)
+library(reshape2)
+library(plyr)
+# for plotting
+library(ggplot2)
+library(grid)
+#library(grid)
+# for tables
+library(xtable)
+library(apsrtable)
+#library(memisc)
+# for survey design
+library(survey)
+
+
+square = function(file, width, height) {pdf(file, width = 8, height = 6, pointsize = 10)}
+scatter = function(file, width, height) {pdf(file, width = 8, height = 4, pointsize = 10)}
+shallow = function(file, width, height) {pdf(file, width = 8, height = 3, pointsize = 10)}
+tall = function(file, width, height) {pdf(file, width = 8, height = 10, pointsize = 10)}
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbPalette_dual <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+
+se <- read.csv("data/es_se.csv", dec=",")
+se$type <- rep("social.exclusion", rep=33)
+se.l <- melt(se, id.vars=c("geo.time","type"))
+se.l$variable <- recode(se.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+se.l$variable <- as.numeric(levels(se.l$variable)[se.l$variable])
+#
+mp <- read.csv("data/es_mp.csv", dec=",")
+mp$type <- rep("material.deprivation", rep=33)
+mp.l <- melt(mp, id.vars=c("geo.time","type"))
+mp.l$variable <- recode(mp.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+mp.l$variable <- as.numeric(levels(mp.l$variable)[mp.l$variable])
+#
+arpr <- read.csv("data/es_arpr.csv", dec=",")
+arpr$type <- rep("poverty.rate", rep=33)
+arpr.l <- melt(arpr, id.vars=c("geo.time","type"))
+arpr.l$variable <- recode(arpr.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+arpr.l$variable <- as.numeric(levels(arpr.l$variable)[arpr.l$variable])
+#
+wi <- read.csv("data/es_wi.csv", dec=",")
+wi$type <- rep("work.intensity", rep=33)
+wi.l <- melt(wi, id.vars=c("geo.time","type"))
+wi.l$variable <- recode(wi.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+wi.l$variable <- as.numeric(levels(wi.l$variable)[wi.l$variable])
+#
+df <- rbind(se.l,mp.l,arpr.l,wi.l)
+df$type <- factor(df$type)
+df$type <- factor(df$type, 
+                  levels = c("poverty.rate",
+                             "material.deprivation",
+                             "work.intensity",
+                             "social.exclusion"))
+# region_coding
+region <- read.csv("~/workspace/region_coding/eu_names.csv")
+region <- subset(region, select=c("name_english","NUTS_ID","group_post_soc"))
+names(region) <- c("geo.time","code","group")
+df <- join(df,region,by="geo.time")
+df <- subset(df, geo.time != "Euro area (16 countries)")
+df <- subset(df, geo.time != "Euro area (17 countries)")
+
+```
+
+---
+
+### Trends in EU2020 poverty subindicators
+
+```{rplot1, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+df_2 <- subset(df, type != 'social.exclusion')
+cnames <- subset(df_2, variable == 2010)
+ggplot(df_2, aes(x=variable, y=value,
+                 group=geo.time,
+               color=group, 
+               label=geo.time)) + 
+  geom_line() + geom_point(size=2) + facet_grid(.~type) +
+  geom_text(data=cnames, aes(x=variable, 
+                             y=value, 
+                             label=geo.time), size=6) + 
+  theme(legend.position="top") + 
+  geom_vline(aes(xintercept=2010), 
+             colour="Dim Grey", linetype="dashed") +
+  scale_color_manual(values=cbPalette) +
+  theme(legend.title=element_blank()) +
+    labs(x = "", 
+       y = "Population share (%)") +
+         theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16))
+```
+
+---
+
+### Trends in EU2020 in overall measure
+
+```{rplot1_1, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+df_2 <- subset(df, type == 'social.exclusion')
+cnames <- subset(df_2, variable == 2010)
+ggplot(df_2, aes(x=variable, y=value, 
+               group=geo.time, color=group, 
+               label=geo.time)) + 
+  geom_line() + geom_point(size=3) +
+  geom_text(data=cnames, aes(x=variable, 
+                             y=value, 
+                             label=geo.time), size=5) + 
+  theme(legend.position="top") + 
+  geom_vline(aes(xintercept=2010), 
+             colour="Dim Grey", linetype="dashed") +
+  scale_color_manual(values=cbPalette)  +
+  theme(legend.title=element_blank()) +
+    labs(x = "", 
+       y = "Population share (%)") +
+         theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16))
+```
+
+```{rplot2_load, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+df.10 <- subset(df, variable == 2010)
+df.10 <- df.10[!is.na(df.10$group),]
+df.10$group <- factor(df.10$group)
+
+# rank cntries by social exclusion
+rank <- subset(df.10, type %in% "social.exclusion", 
+               select=c("geo.time","value"))
+rank$rank <- rank(rank$value)
+df.10 <- join(df.10,rank,by="geo.time")
+#
+plot1 <- ggplot(df.10, aes(x=reorder(geo.time, rank), 
+                           y=value, fill=group)) +
+  geom_bar(stat="identity", position="dodge") +
+  scale_fill_manual(values=cbPalette) + coord_flip() +
+  facet_grid(.~type) + theme(legend.position="top") +
+  labs(x = "", 
+       y = "Population share (%)") +
+   theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16)) +
+          theme(legend.title=element_blank())
+
+df.10 <- subset(df, variable == 2010)
+df.10 <- df.10[!is.na(df.10$group),]
+df.10$group <- factor(df.10$group)
+
+pop <- read.csv("data/es_pop.csv", dec=",")
+pop.l <- melt(pop, id.vars=c("geo.time"))
+pop.l$variable <- recode(pop.l$variable, 
+                                   "'X2001'=2001;
+                        'X2002'=2002;
+                        'X2003'=2003;
+                        'X2004'=2004;
+                        'X2005'=2005;
+                        'X2006'=2006;
+                        'X2007'=2007;
+                        'X2008'=2008;
+                        'X2009'=2009;
+                        'X2010'=2010;
+                        'X2011'=2011;
+                        'X2012'=2012;")
+pop.l$variable <- as.numeric(levels(pop.l$variable)[pop.l$variable])
+pop.l$value <- as.numeric(pop.l$value)
+pop.l$value <- pop.l$value / 1000000
+
+#
+pop.l.2010 <- subset(pop.l, variable == 2010)
+pop.w.2010 <- dcast(data=pop.l.2010, geo.time ~ variable, 
+                    value.var="value")
+names(pop.w.2010) <- c("geo.time","pop2010")
+df.10.pop <- join(df.10,pop.w.2010,by="geo.time")
+df.10.pop$value_pop <- (df.10.pop$value/100) * df.10.pop$pop2010
+
+df.10.pop <- subset(df.10.pop, geo.time != 'EU (27 countries)')
+
+# rank cntries by social exclusion
+rank <- subset(df.10.pop, type %in% "social.exclusion", 
+               select=c("geo.time","value_pop"))
+rank$rank <- rank(rank$value_pop)
+df.10.pop <- join(df.10.pop,rank,by="geo.time")
+#
+plot2 <- ggplot(df.10.pop, aes(x=reorder(geo.time, rank), 
+                               y=value_pop, fill=group)) +
+  geom_bar(stat="identity", position="dodge") +
+  scale_fill_manual(values=cbPalette_dual) + coord_flip() +
+  facet_grid(.~type) + theme(legend.position="top") +
+  labs(x = "", 
+       y = "Number of poor in million") +
+   theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16)) +
+          theme(legend.title=element_blank())
+```
+
+---
+### Relative population shares in 2010 (%)
+
+<img src="../venn/tolppa1.png">
+
+---
+
+### Absolute population shares in 2010 (millions)
+
+<img src="../venn/tolppa2.png">
+
+
+---
+# Data & methods
+
+---
+### Data
+* EU-SILC
+* Cross-sectional 2010
+* Countries: *Germany, Italy, United Kingdom, Romania, Poland, Denmark*
+
+### Methods
+1. Simple boolean algrbra & Venn-diagrams
+2. Targeting errors & various indicators of targeting performance
+
+---
+### 8 categories of poor individuals
+
+<img src="../venn/venn_example.svg">
+
+
+---
+# Overview of results
+### Rates & dimensions
+
+---
+
+### Rates of individual dimensions of EU2020 poverty target
+<font size="4">
+```{rtable1, echo=FALSE, cache=TRUE, results='asis', warning=FALSE, message=FALSE}
+df.coverage <- read.csv("~/workspace/eusilc/espanet2012/df.coverage.csv")
+
+d.df <- svydesign(id=~PER_ID, weights=~RB050, data=df.coverage)
+
+#
+ip <- data.frame(prop.table(svytable(~RB020+income_poor+benefit, d.df),1)*100)
+wp <- data.frame(prop.table(svytable(~RB020+work_poor+benefit, d.df),1)*100)
+mp <- data.frame(prop.table(svytable(~RB020+material_poor+benefit, d.df),1)*100)
+md <- data.frame(prop.table(svytable(~RB020+multidim2+benefit, d.df),1)*100)
+
+### Poverty rates in studied countries
+
+tbl.ip <- data.frame(prop.table(svytable(~RB020+income_poor, d.df),1)*100)
+tbl.mp <- data.frame(prop.table(svytable(~RB020+material_poor, d.df),1)*100)
+tbl.wp <- data.frame(prop.table(svytable(~RB020+work_poor, d.df),1)*100)
+tbl.mul <- data.frame(prop.table(svytable(~RB020+multi, d.df),1)*100)
+
+tbl.ip <- subset(tbl.ip, income_poor == "inc.poor")
+tbl.mp <- subset(tbl.mp, material_poor == "mt.poor")
+tbl.wp <- subset(tbl.wp, work_poor == "work.poor")
+tbl.mul <- subset(tbl.mul, multi == "poor")
+
+names(tbl.ip) <- c("Country","type","value")
+names(tbl.mp) <- c("Country","type","value")
+names(tbl.wp) <- c("Country","type","value")
+names(tbl.mul) <- c("Country","type","value")
+
+tbl <- rbind(tbl.ip,tbl.mp,tbl.wp,tbl.mul)
+tbl$value <- round(tbl$value, 2)
+tbl.w <- dcast(tbl, Country ~ type, value.var="value")
+names(tbl.w) <- c("Country","At-risk-of-poverty",
+                  "Severe material deprivation",
+                  "Joblessness",
+                  "Poverty and social exclusion")
+
+t6 <- xtable(tbl.w)
+print.xtable(t6, 
+    table.placement = "H", caption.placement = "top", size = "footnotesize", include.rownames=FALSE, type="html")
+```
+</font size>
+
+---
+### National rates of different dimensions of poverty
+<img src="../venn/venn_merge_final_horiz.svg">
+
+---
+### Absolute number of poor individuals
+<img src="../venn/venn_merge_final_pop_horiz.svg">
+
+---
+# Overview of results
+### Impact of Social Assistance
+
+---
+# Coverage rates
+
+---
+### By EU2020 poverty target
+```{rplot9, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+ip.w <- dcast(ip, RB020 + income_poor ~ benefit , value.var="Freq")
+ip.w$cov <- (ip.w$recipient/(ip.w$non.recipient+ip.w$recipient))*100
+ip.w$share <- ip.w$non.recipient + ip.w$recipient
+
+ip.w$cov <- round(ip.w$cov, 1) 
+ip.w$share <- round(ip.w$share, 1)
+
+plot1 <- ggplot(data=ip.w, aes(x=RB020)) + facet_wrap(~income_poor) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=5, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=5, color="black") +
+  labs(title="Income poor individuals") +
+  labs(y="coverage rate & poverty rate (%)", x="") +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16))
+########################################## 
+# MAterial deprivation
+
+
+mp.w <- dcast(mp, RB020 + material_poor ~ benefit , value.var="Freq")
+mp.w$cov <- (mp.w$recipient/(mp.w$non.recipient+mp.w$recipient))*100
+mp.w$share <- mp.w$non.recipient + mp.w$recipient
+
+mp.w$cov <- round(mp.w$cov, 1) 
+mp.w$share <- round(mp.w$share, 1)
+
+plot2 <- ggplot(data=mp.w, aes(x=RB020)) + 
+  facet_wrap(~material_poor) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=5, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=5, color="black") +
+  labs(title="Materially deprived individuals") +
+  labs(y="coverage rate & poverty rate (%)", x="") +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16))
+
+########################################## 
+# Work poverty
+
+
+wp.w <- dcast(wp, RB020 + work_poor ~ benefit , value.var="Freq")
+wp.w$cov <- (wp.w$recipient/(wp.w$non.recipient+wp.w$recipient))*100
+wp.w$share <- wp.w$non.recipient + wp.w$recipient
+
+wp.w$cov <- round(wp.w$cov, 1) 
+wp.w$share <- round(wp.w$share, 1)
+
+plot3 <- ggplot(data=wp.w, aes(x=RB020)) + facet_wrap(~work_poor) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=5, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=5, color="black") +
+  labs(title="Low work intensity individuals") +
+  labs(y="coverage rate & poverty rate (%)", x="") +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16))
+
+########################################## 
+# At risk of social exclusion and poverty
+
+md$Freq <- round(md$Freq, 1)
+
+md.w <- dcast(md, RB020 + multidim2 ~ benefit , value.var="Freq")
+md.w$cov <- (md.w$recipient/(md.w$non.recipient+md.w$recipient))*100
+md.w$share <- md.w$non.recipient + md.w$recipient
+
+md.w$cov <- round(md.w$cov, 1) 
+md.w$share <- round(md.w$share, 1)
+
+ps <- data.frame(prop.table(svytable(~RB020+multi+benefit, d.df),1)*100)
+ps.w <- dcast(ps, RB020 + multi ~ benefit , value.var="Freq")
+ps.w$cov <- (ps.w$recipient/(ps.w$non.recipient+ps.w$recipient))*100
+ps.w$share <- ps.w$non.recipient + ps.w$recipient
+
+ps.w$cov <- round(ps.w$cov, 1) 
+ps.w$share <- round(ps.w$share, 1)
+
+plot4 <- ggplot(data=ps.w, aes(x=RB020)) + facet_wrap(~multi) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() + 
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=5, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=5, color="black") +
+  labs(title="At risk of social exclusion and poverty") +
+  labs(y="coverage rate & poverty rate (%)", x="") +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16))
+
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(2,2)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=2))
+print(plot3, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=1))
+print(plot4, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=2))
+
+```
+
+```{rplot9_1, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot1
+```
+```{rplot9_2, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot2
+```
+```{rplot9_3, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot3
+```
+```{rplot9_4, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot4
+```
+
+
+---
+### By Country
+
+```{rplot10, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+ggplot(data=subset(md.w, multidim2 != 'a.non.poor'), aes(x=multidim2)) + facet_wrap(~RB020) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=5, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-2.2, size=5, color="black")  +
+  labs(y="coverage rate & poverty rate (%)", x="") +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16))
+  
+```
+
+---
+# Targeting errors
+
+---
+### Targeting errors -"Type 1 error (leakage)
+<font size="4">
+```{rtable2, echo=FALSE, results='asis', cache=TRUE}
+error <- data.frame(svytable(~RB020+multi+benefit, d.df))
+error.w <- dcast(error, RB020 ~ multi + benefit, value.var="Freq")
+error.w$error1 <- error.w$non.poor_recipient / (error.w$non.poor_recipient + error.w$poor_recipient) * 100
+
+error.w <- subset(error.w, select=c("RB020","error1"))
+
+error2 <- data.frame(svytable(~RB020+multidim2+benefit, d.df))
+error2 <- subset(error2, multidim2 != 'a.non.poor')
+error2.w <- dcast(error2, multidim2 ~ benefit + RB020, value.var="Freq")
+
+error2.w$error2_DE <- error2.w$non.recipient_DE / 
+  (error2.w$non.recipient_DE + error2.w$recipient_DE) * 100
+error2.w$error2_UK <- error2.w$non.recipient_UK / 
+  (error2.w$non.recipient_UK + error2.w$recipient_UK) * 100
+error2.w$error2_IT <- error2.w$non.recipient_IT / 
+  (error2.w$non.recipient_IT + error2.w$recipient_IT) * 100
+error2.w$error2_RO <- error2.w$non.recipient_RO / 
+  (error2.w$non.recipient_RO + error2.w$recipient_RO) * 100
+error2.w$error2_PL <- error2.w$non.recipient_PL / 
+  (error2.w$non.recipient_PL + error2.w$recipient_PL) * 100
+error2.w$error2_DK <- error2.w$non.recipient_DK / 
+  (error2.w$non.recipient_DK + error2.w$recipient_DK) * 100
+
+error2.w2 <- subset(error2.w, select=c("multidim2","error2_DE",
+                                       "error2_UK","error2_IT",
+                                       "error2_PL","error2_RO",
+                                       "error2_DK"))
+
+error2.l <- melt(error2.w2, id.vars="multidim2", 
+                 measure.vars=c("error2_DE","error2_UK",
+                                "error2_IT","error2_PL",
+                                "error2_RO","error2_DK"))
+library(stringr)
+error2.l$variable <- str_replace_all(error2.l$variable, "error2_", "")
+names(error2.l) <- c("multidim2","RB020","error2")
+df.error <- join(error2.l,error.w,by="RB020", type="right")
+
+df.z <- subset(md.w, select=c("RB020","multidim2","cov"))
+
+df.error2 <- join(df.error,df.z,by=c("RB020","multidim2"))
+
+df.error2$tar.diff <- df.error2$cov - df.error2$error1
+
+df.error2$cov <- NULL
+
+df.error.tbl <- melt(df.error2, id.vars=c("RB020","multidim2"), measure.vars=c("error1","error2","tar.diff"))
+
+df.error.tbl$value <- round(df.error.tbl$value, 1)
+
+df.error.tbl.w <- dcast(df.error.tbl, multidim2 +variable ~ RB020, value.var="value")
+df.tbl <- df.error.tbl.w[c(2,1,3,4,5,6,7,8)]
+
+df.tbl$variable <- recode(df.tbl$variable, 
+                          "'error1'='Type 1 error (leakage)';
+                          'error2'='Type 2 error (undercoverage)';
+                          'tar.diff'='Targeting differential'")
+
+names(df.tbl) <- c("Measure","deprivation.subgroup","DE","DK","IT","PL","RO","UK")
+
+#df.tbl.x <- subset(df.tbl, 
+#                   deprivation.subgroup %in% c("b.IncomePoor",
+#                                               "c.MaterialPoor",
+#                                               "d.WorkPoor"))
+
+df.tbl.x <- subset(df.tbl, 
+                   Measure %in% "Type 1 error (leakage)")
+df.tbl.x$Measure <- NULL
+
+t2 <- xtable(df.tbl.x)
+print.xtable(t2, 
+    table.placement = "H", caption.placement = "top", 
+             size = "scriptsize", 
+             include.rownames=FALSE,
+             type="html")
+```
+</font>
+
+---
+### Targeting errors - Type 2 error (undercoverage)
+<font size="4">
+```{rtable2_2, results='asis', echo=FALSE}
+#df.tbl.x <- subset(df.tbl, 
+#                   deprivation.subgroup %in% 
+#                     c("e.IncomePoor&MaterialPoor",
+#                       "f.IncomePoor&WorkPoor",
+#                       "g.MaterialPoor&WorkPoor"))
+
+df.tbl.x <- subset(df.tbl, 
+                   Measure %in% 'Type 2 error (undercoverage)')
+df.tbl.x$Measure <- NULL
+
+t2 <- xtable(df.tbl.x)
+print.xtable(t2, 
+    table.placement = "H", caption.placement = "top", 
+             size = "scriptsize", 
+             include.rownames=FALSE,
+             type="html")
+```
+</font>
+
+---
+### Targeting errors - Targeting differential
+<font size="4">
+```{rtable2_3, results='asis', echo=FALSE}
+#df.tbl.x <- subset(df.tbl, 
+#                   deprivation.subgroup %in% "h.IncomePoor&MaterialP#oor&WorkPoor")
+
+df.tbl.x <- subset(df.tbl, 
+                   Measure %in% 'Targeting differential')
+df.tbl.x$Measure <- NULL
+
+t2 <- xtable(df.tbl.x)
+print.xtable(t2, 
+    table.placement = "H", caption.placement = "top", 
+             size = "scriptsize", 
+             include.rownames=FALSE,
+             type="html")
+```
+</font>
+
+---
+# Targeting performance
+
+---
+### By EU2020 poverty target
+```{rplot11, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+income_poor, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ income_poor, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$inc.poor/bnf.ratio.w$inc.non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~income_poor, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+plot1 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=5) + 
+  labs(title="Income poor individuals") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+    geom_hline(aes(yintercept=1), colour="Dim Grey", 
+               linetype="dashed") +
+    coord_cartesian(ylim=c(0,15)) +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16))
+
+  
+
+## material poverty
+# 1) find the total benefit sum
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+material_poor, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ material_poor, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$mt.poor/bnf.ratio.w$mt.non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~material_poor, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+
+plot2 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=5) + 
+  labs(title="Materially deprived individuals") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", 
+             linetype="dashed") +
+    coord_cartesian(ylim=c(0,15)) +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16))
+
+## work poverty
+# 1) find the total benefit sum
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+work_poor, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ work_poor, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$work.poor/bnf.ratio.w$work.non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~work_poor, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+
+plot3 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=5) + 
+  labs(title="Low work intensity individuals") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", 
+             linetype="dashed") +
+    coord_cartesian(ylim=c(0,15)) +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16))
+  
+
+## social exclusion and poverty
+# 1) find the total benefit sum
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+multi, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ multi, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$poor/bnf.ratio.w$non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~multi, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+plot4 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=5) + 
+  labs(title="At risk of poverty and social exclusion") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", 
+             linetype="dashed") +
+    coord_cartesian(ylim=c(0,15)) +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16))
+
+## social exclusion and poverty
+## material poverty
+# 1) find the total benefit sum
+df.bnf.r <- data.frame(svyby(~socass, ~RB020+multidim2, d.df, svytotal)) # benefit-ratio
+df.bnf.r$se <- NULL
+names(df.bnf.r) <- c("RB020","variable","socass")
+#cgh.bnf <- dcast(df.bnf.r, RB020 ~ multidim2, value.var="socass") # to wide
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+cgh.nr <- data.frame(svyby(~multidim2, ~RB020, d.df, svytotal)) # population-ratio
+cgh.nr.w <- melt(data=cgh.nr, id.vars="RB020")
+cgh.nr.w <- head(cgh.nr.w, 48)
+
+library(stringr)
+cgh.nr.w$variable <- str_replace_all(cgh.nr.w$variable, "multidim2", "")
+df.bnf.r$variable <- str_replace_all(df.bnf.r$variable, "&", ".")
+
+cgh.multi <- join(df.bnf.r,cgh.nr.w,by=c("RB020","variable"))
+
+cgh.multi$meanbnf <- cgh.multi$socass/cgh.multi$value
+cgh.multi.non.poor <- subset(cgh.multi, variable %in% 'a.non.poor', 
+                             select=c("RB020","meanbnf"))
+names(cgh.multi.non.poor) <- c("RB020","meanbnf_nonpoor")
+
+cgh.multi.poor <- subset(cgh.multi, variable != 'a.non.poor', 
+                             select=c("RB020","variable","meanbnf"))
+
+cgh.multi.merge <- join(cgh.multi.poor,cgh.multi.non.poor,by="RB020")
+cgh.multi.merge$cgh <- round(cgh.multi.merge$meanbnf / cgh.multi.merge$meanbnf_nonpoor, 1)
+
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(2,2)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=2))
+print(plot3, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=1))
+print(plot4, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=2))
+```
+
+
+```{rplot11_1, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot1
+```
+
+
+```{rplot11_2, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot2
+```
+
+
+```{rplot11_3, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot3
+```
+
+
+```{rplot11_4, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE, results='hide'}
+plot4
+```
+
+---
+### By Country
+```{rplot12, fig.height=8, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+ggplot(cgh.multi.merge, aes(x=variable, y=cgh, label=cgh)) + facet_wrap(~RB020) +
+  geom_bar(stat="identity", fill="#56B4E9") + coord_flip() +
+  geom_text(size=5) + 
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", 
+             linetype="dashed") +
+               theme(axis.title.x = element_text(size=16),
+        axis.title.y  = element_text(angle=90, size=16),
+              axis.text.y  = element_text(size=16),
+              axis.text.x  = element_text(size=16),
+              legend.text  = element_text(size=16),
+         strip.text.x = element_text(size = 16))
+```
+
+---
+# Concluding remarks

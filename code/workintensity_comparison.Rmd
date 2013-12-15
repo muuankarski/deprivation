@@ -1,0 +1,555 @@
+# EU2020 - Low work intensity -indikaattorin rakentamista
+
+Alla verrattu EU-silcistä (cross-2010 eka versio) saatuja lukuja Eurostatin ilmoittamiin. Ensinnä kunkin a) Eurostatin b) mun Espanetin paperissa käyttämät ja c) Ilarin vinkkaamat ja lopussa d) tulosten vertailua.
+
+## a) Eurostat
+
+```{rpackages, echo=FALSE, message=FALSE}
+setwd("~/workspace/eusilc/espanet2012")
+library(reshape2)
+library(survey)
+library(ggplot2)
+library(car)
+library(plyr)
+library(reshape)
+```
+
+
+
+```{reurosta, echo=TRUE, warning=FALSE, message=FALSE}
+wi <- read.csv(url("http://research.muuankarski.org/code/espanet/es_wi.csv"), dec=",")
+wi.l <- melt(wi, id.vars=c("geo.time"))
+wi.l$variable <- recode(wi.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+wi.l$variable <- as.numeric(levels(wi.l$variable)[wi.l$variable])
+es_wi <- subset(wi.l, variable == 2010)
+#es_wi <- subset(es_wi, geo.time %in% c('Italy','Romania','Denmark',
+#                                      'Germany','Poland',
+#                                      'United Kingdom'))
+es_wi$type <- rep("eurostat", rep=6)
+es_wi
+```
+
+## B) Mun Espanetin paperissa käyttämät. 
+
+Näissä käytetty 
+```{rmergemod, cache=TRUE}
+merge_mod <- read.csv("data/merge_mod.csv")
+```
+
+
+```{rmarkus, cache=TRUE, warning=FALSE, message=FALSE}
+#############################################################
+# muotoilu on seuraava 
+## Persons are defined as living in households with very low work intensity
+## if they are aged 0-59 and the working age members in the household
+## worked less than 20 % of their potential during the past year.
+
+#df <- subset(merge_mod, select=c("HH_ID","PER_ID","PL070","PL072","RB020","RB080"))
+df <- subset(merge_mod, select=c("HH_ID","PER_ID","RB050",
+                                 "PL210A","PL210B","PL210C","PL210D","PL210E","PL210F",
+                                 "PL210G","PL210H","PL210I","PL210J","PL210K","PL210L",
+                                 "PL211A","PL211B","PL211C","PL211D","PL211E","PL211F",
+                                 "PL211G","PL211H","PL211I","PL211J","PL211K","PL211L",
+                                 "PL211A_F","PL211B_F","PL211C_F","PL211D_F","PL211E_F","PL211F_F",
+                                 "PL211G_F","PL211H_F","PL211I_F","PL211J_F","PL211K_F","PL211L_F",
+                                  "RB020","RB080"))
+
+
+#df <- subset(df, RB020 %in% c("DK","RO",
+#                              "PL","DE",
+#                              "IT","UK"))
+
+df$age <- 2010 - df$RB080 # 2008
+#df$age <- 2004 - df$RB080 # 2004
+df <- subset(df, age < 60)
+df <- subset(df, age > 17)
+
+########################################
+
+# MIKÄLI OLLUT OPISKELIJA JOSSAIN KUUSSA EDELLISVUODEN AIKANA, NIIN 
+# ON POISSA ANALYYYSEISTÄ
+# Excluded households
+## students 18- 24
+df$student[df$age < 25 & df$PL211A == 6] <- "student"
+df$student[df$age < 25 & df$PL211B == 6] <- "student"
+df$student[df$age < 25 & df$PL211C == 6] <- "student"
+df$student[df$age < 25 & df$PL211D == 6] <- "student"
+df$student[df$age < 25 & df$PL211E == 6] <- "student"
+df$student[df$age < 25 & df$PL211F == 6] <- "student"
+df$student[df$age < 25 & df$PL211G == 6] <- "student"
+df$student[df$age < 25 & df$PL211H == 6] <- "student"
+df$student[df$age < 25 & df$PL211I == 6] <- "student"
+df$student[df$age < 25 & df$PL211J == 6] <- "student"
+df$student[df$age < 25 & df$PL211K == 6] <- "student"
+df$student[df$age < 25 & df$PL211L == 6] <- "student"
+df$student <- recode(df$student, "'student'='student';
+                     else='non-student'")
+
+df <- subset(df, student %in% 'non-student')
+
+
+########################################
+########################################
+########################################
+# HENKILÖKOHTAINEN TYÖUINTENSITEETTI ON LASKETTU 
+# KUUKAUSITTAIN PL211X-MUUTTUJISTA
+
+#1 Employee working full-time
+#2 Employee working part-time
+#3 Self-employed working full-time (including family worker)
+#4 Self-employed working part-time (including family worker)
+#5 Unemployed
+#6 Pupil, student, further training, unpaid work experience
+#7 In retirement or in early retirement or has given up business
+#8 Permanently disabled or/and unfit to work
+#9 In compulsory military community or service
+#10 Fulfilling domestic tasks and care responsibilities
+#11 Other inactive person
+
+df$PL211A2[df$PL211A == 1] <- 1
+df$PL211A2[df$PL211A == 3] <- 1
+df$PL211A2[df$PL211A == 2] <- 0.5
+df$PL211A2[df$PL211A == 4] <- 0.5
+df$PL211A2[df$PL211A >= 5] <- 0
+df$PL211A2[df$PL211A < 1] <- 0 # puuttuvat
+df$PL211A2[df$PL211A == NA] <- 1 # puuttuvat
+
+#
+df$PL211B2[df$PL211B == 1] <- 1
+df$PL211B2[df$PL211B == 3] <- 1
+df$PL211B2[df$PL211B == 2] <- 0.5
+df$PL211B2[df$PL211B == 4] <- 0.5
+df$PL211B2[df$PL211B >= 5] <- 0
+df$PL211B2[df$PL211B < 1] <- 0
+df$PL211B2[df$PL211B == NA] <- 1
+#
+df$PL211C2[df$PL211C == 1] <- 1
+df$PL211C2[df$PL211C == 3] <- 1
+df$PL211C2[df$PL211C == 2] <- 0.5
+df$PL211C2[df$PL211C == 4] <- 0.5
+df$PL211C2[df$PL211C >= 5] <- 0
+df$PL211C2[df$PL211C < 1] <- 0
+df$PL211C2[df$PL211C == NA] <- 1
+#
+df$PL211D2[df$PL211D == 1] <- 1
+df$PL211D2[df$PL211D == 3] <- 1
+df$PL211D2[df$PL211D == 2] <- 0.5
+df$PL211D2[df$PL211D == 4] <- 0.5
+df$PL211D2[df$PL211D >= 5] <- 0
+df$PL211D2[df$PL211D < 1] <- 0
+df$PL211D2[df$PL211D == NA] <- 1
+#
+df$PL211E2[df$PL211E == 1] <- 1
+df$PL211E2[df$PL211E == 3] <- 1
+df$PL211E2[df$PL211E == 2] <- 0.5
+df$PL211E2[df$PL211E == 4] <- 0.5
+df$PL211E2[df$PL211E >= 5] <- 0
+df$PL211E2[df$PL211E < 1] <- 0
+df$PL211E2[df$PL211E == NA] <- 1
+#
+df$PL211F2[df$PL211F == 1] <- 1
+df$PL211F2[df$PL211F == 3] <- 1
+df$PL211F2[df$PL211F == 2] <- 0.5
+df$PL211F2[df$PL211F == 4] <- 0.5
+df$PL211F2[df$PL211F >= 5] <- 0
+df$PL211F2[df$PL211F < 1] <- 0
+df$PL211F2[df$PL211F == NA] <- 1
+#
+df$PL211G2[df$PL211G == 1] <- 1
+df$PL211G2[df$PL211G == 3] <- 1
+df$PL211G2[df$PL211G == 2] <- 0.5
+df$PL211G2[df$PL211G == 4] <- 0.5
+df$PL211G2[df$PL211G >= 5] <- 0
+df$PL211G2[df$PL211G < 1] <- 0
+df$PL211LG[df$PL211G == NA] <- 1
+#
+df$PL211H2[df$PL211H == 1] <- 1
+df$PL211H2[df$PL211H == 3] <- 1
+df$PL211H2[df$PL211H == 2] <- 0.5
+df$PL211H2[df$PL211H == 4] <- 0.5
+df$PL211H2[df$PL211H >= 5] <- 0
+df$PL211H2[df$PL211H < 1] <- 0
+df$PL211H2[df$PL211H == NA] <- 1
+#
+df$PL211I2[df$PL211I == 1] <- 1
+df$PL211I2[df$PL211I == 3] <- 1
+df$PL211I2[df$PL211I == 2] <- 0.5
+df$PL211I2[df$PL211I == 4] <- 0.5
+df$PL211I2[df$PL211I >= 5] <- 0
+df$PL211I2[df$PL211I < 1] <- 0
+df$PL211I2[df$PL211I == NA] <- 1
+#
+df$PL211J2[df$PL211J == 1] <- 1
+df$PL211J2[df$PL211J == 3] <- 1
+df$PL211J2[df$PL211J == 2] <- 0.5
+df$PL211J2[df$PL211J == 4] <- 0.5
+df$PL211J2[df$PL211J >= 5] <- 0
+df$PL211J2[df$PL211J < 1] <- 0
+df$PL211J2[df$PL211J == NA] <- 1
+#
+df$PL211K2[df$PL211K == 1] <- 1
+df$PL211K2[df$PL211K == 3] <- 1
+df$PL211K2[df$PL211K == 2] <- 0.5
+df$PL211K2[df$PL211K == 4] <- 0.5
+df$PL211K2[df$PL211K >= 5] <- 0
+df$PL211K2[df$PL211K < 1] <- 0
+df$PL211K2[df$PL211K == NA] <- 1
+#
+df$PL211L2[df$PL211L == 1] <- 1
+df$PL211L2[df$PL211L == 3] <- 1
+df$PL211L2[df$PL211L == 2] <- 0.5
+df$PL211L2[df$PL211L == 4] <- 0.5
+df$PL211L2[df$PL211L >= 5] <- 0
+df$PL211L2[df$PL211L < 1] <- 0
+df$PL211L2[df$PL211L == NA] <- 1
+########################################
+# LASKETAAN VUOSITTAINEN HENKILÖKOHTAINEN TOTEUTUNUT TYÖMÄÄRÄ
+
+df$PL211_sum <- df$PL211A2+df$PL211B2+df$PL211C2+df$PL211D2+
+  df$PL211E2+df$PL211F2+df$PL211G2+df$PL211H2+
+  df$PL211I2+df$PL211J2+df$PL211K2+df$PL211L2
+# MIKÄLI PUUTTUVA NIIN KOODATAAN TÄYSTYÖLLISEKSI
+df$PL211_sum <- recode(df$PL211_sum, "NA=12")
+
+########################################
+# kumulatiiviset kuukaudet
+# LASKETAAN KOTITALOUDEN KUMULATIIVISET TYÖMÄÄRÄT
+df$cum_months <- ave(df$PL211_sum, df$HH_ID, FUN = cumsum) #PL211
+## lasketaan working age -tyyppien määrä kotitalouksittain "köyhyysrajaa"
+## varten
+# LASKETAAN KUINKA MONTA TYÖIKÄISTÄ HLÖ KOTITALOUDESSA ON
+df$count <- recode(df$RB020, "else=1")
+df$count <- as.numeric(df$count)
+df$cum_counts <- ave(df$count, df$HH_ID, FUN = cumsum)
+
+# valitaan suurimman "countin" tapaukset edustamaan HH:ta
+#sel <- ave(df$cum_counts, 
+#           df$HH_ID, FUN = max) == df$cum_counts
+#df.uniq <- df[sel,]
+
+df.hh.uniq <- data.frame(tapply(df$cum_months, df$HH_ID, max))
+df.hh.uniq$HH_ID <- row.names(df.hh.uniq) 
+names(df.hh.uniq) <- c("max_months","HH_ID")
+# valitaan max countit
+df.hh.uniq2 <- data.frame(tapply(df$cum_counts, df$HH_ID, max))
+df.hh.uniq2$HH_ID <- row.names(df.hh.uniq) 
+names(df.hh.uniq2) <- c("max_counts","HH_ID")
+
+# tehdään näistä hh-tason data, jolla voidaan laskea "köyhät" 
+# hh-tasolla.
+
+df.hh <- join(df.hh.uniq,df.hh.uniq2,by="HH_ID")
+
+df.hh$avg_months <- df.hh$max_months/df.hh$max_counts
+# tehdään köyhyysmuuttuja 
+df.hh$work_poor[df.hh$avg_months < 2.4] <- "work.poor"
+df.hh$work_poor[df.hh$avg_months >= 2.4] <- "work.non.poor"
+df.hh$work_poor <- factor(df.hh$work_poor)
+
+# sitten ympätään data df-dataan, jossa mukana kriteerit täyttävät 
+# yksilöt
+
+df.wp <- join(df,df.hh,by="HH_ID")
+
+df.wp$RB020 <- factor(df.wp$RB020)
+
+d.df <- svydesign(id=~PER_ID, weights=~RB050, data=df.wp)
+wp_markus <- data.frame(prop.table(svytable(~RB020+work_poor, d.df),1)*100)
+
+wp_markus
+nrow(df.wp)
+```
+
+## C) Ilarin syntaksista kopioidut
+
+
+```{rilari, cache=TRUE, warning=FALSE, message=FALSE}
+#############################################################
+# muotoilu on seuraava 
+## Persons are defined as living in households with very low work intensity
+## if they are aged 0-59 and the working age members in the household
+## worked less than 20 % of their potential during the past year.
+
+#df <- subset(merge_mod, select=c("HH_ID","PER_ID","PL070","PL072","RB020","RB080"))
+df <- subset(merge_mod, select=c("HH_ID","PER_ID","RB050",
+                                  "PL211A","PL211B","PL211C","PL211D","PL211E","PL211F",
+                                 "PL211G","PL211H","PL211I","PL211J","PL211K","PL211L",
+                                 "pl070","pl072","PL073","PL074","PL075","PL076",
+                                 "PL080","PL085","PL086","PL087","PL088","PL089","PL090",
+                                 "RB020","RB080"))
+
+
+#df <- subset(df, RB020 %in% c("DK","RO",
+#                              "PL","DE",
+#                              "IT","UK"))
+#dfx <- df
+df$age <- 2010 - df$RB080 # 2008
+#df$age <- 2004 - df$RB080 # 2004
+df <- subset(df, age < 60)
+df <- subset(df, age > 17)
+
+########################################
+# Excluded households
+## students 18- 24
+df$student[df$age < 25 & df$PL211A == 6] <- "student"
+df$student[df$age < 25 & df$PL211B == 6] <- "student"
+df$student[df$age < 25 & df$PL211C == 6] <- "student"
+df$student[df$age < 25 & df$PL211D == 6] <- "student"
+df$student[df$age < 25 & df$PL211E == 6] <- "student"
+df$student[df$age < 25 & df$PL211F == 6] <- "student"
+df$student[df$age < 25 & df$PL211G == 6] <- "student"
+df$student[df$age < 25 & df$PL211H == 6] <- "student"
+df$student[df$age < 25 & df$PL211I == 6] <- "student"
+df$student[df$age < 25 & df$PL211J == 6] <- "student"
+df$student[df$age < 25 & df$PL211K == 6] <- "student"
+df$student[df$age < 25 & df$PL211L == 6] <- "student"
+df$student <- recode(df$student, "'student'='student';
+                     else='non-student'")
+df <- subset(df, student %in% 'non-student')
+
+########################################
+########################################
+########################################
+
+# lasketaan yksilökohtaiset työkuukaudet
+df$emp <- df$PL073 + df$PL074 + df$PL075 + df$PL076
+# lasketaan yksilökohtaiset "aktiivisuuskuukaudet"
+df$tot <- df$PL073 + df$PL074 + df$PL075 + df$PL076 + df$PL080 + 
+  df$PL085 + df$PL086 + df$PL087 + df$PL088 + 
+  df$PL089 + df$PL090
+
+
+df$cum_months <- ave(df$emp, df$HH_ID, FUN = cumsum) #PL211
+df$cum_max <- ave(df$tot, df$HH_ID, FUN = cumsum) #PL211
+## lasketaan working age -tyyppien määrä kotitalouksittain "köyhyysrajaa"
+## varten
+# LASKETAAN KUINKA MONTA TYÖIKÄISTÄ HLÖ KOTITALOUDESSA ON
+df$count <- recode(df$RB020, "else=1")
+df$count <- as.numeric(df$count)
+df$cum_counts <- ave(df$count, df$HH_ID, FUN = cumsum)
+
+# valitaan suurimman "countin" tapaukset edustamaan HH:ta
+#sel <- ave(df$cum_counts, 
+#           df$HH_ID, FUN = max) == df$cum_counts
+#df.uniq <- df[sel,]
+
+df.hh.uniq <- data.frame(tapply(df$cum_months, df$HH_ID, max))
+df.hh.uniq$HH_ID <- row.names(df.hh.uniq) 
+names(df.hh.uniq) <- c("max_months","HH_ID")
+# valitaan max countit
+df.hh.uniq2 <- data.frame(tapply(df$cum_counts, df$HH_ID, max))
+df.hh.uniq2$HH_ID <- row.names(df.hh.uniq) 
+names(df.hh.uniq2) <- c("max_counts","HH_ID")
+
+# tehdään näistä hh-tason data, jolla voidaan laskea "köyhät" 
+# hh-tasolla.
+
+df.hh <- join(df.hh.uniq,df.hh.uniq2,by="HH_ID")
+
+df.hh$avg_months <- df.hh$max_months/df.hh$max_counts
+# tehdään köyhyysmuuttuja 
+df.hh$work_poor[df.hh$avg_months < 2.4] <- "work.poor"
+df.hh$work_poor[df.hh$avg_months >= 2.4] <- "work.non.poor"
+df.hh$work_poor <- factor(df.hh$work_poor)
+
+df.wp <- join(df,df.hh,by="HH_ID")
+
+df.wp$RB020 <- factor(df.wp$RB020)
+
+d.df <- svydesign(id=~PER_ID, weights=~RB050, data=df.wp)
+wp_ilari <- data.frame(prop.table(svytable(~RB020+work_poor, d.df),1)*100)
+
+wp_ilari
+nrow(df.wp)
+```
+
+
+```{rilari_mod, cache=TRUE, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#############################################################
+# muotoilu on seuraava 
+## Persons are defined as living in households with very low work intensity
+## if they are aged 0-59 and the working age members in the household
+## worked less than 20 % of their potential during the past year.
+
+#df <- subset(merge_mod, select=c("HH_ID","PER_ID","PL070","PL072","RB020","RB080"))
+df <- subset(merge_mod, select=c("HH_ID","PER_ID","RB050",
+                                  "PL211A","PL211B","PL211C","PL211D","PL211E","PL211F",
+                                 "PL211G","PL211H","PL211I","PL211J","PL211K","PL211L",
+                                 "pl070","pl072","PL073","PL074","PL075","PL076",
+                                 "PL080","PL085","PL086","PL087","PL088","PL089","PL090",
+                                 "RB020","RB080"))
+
+
+#df <- subset(df, RB020 %in% c("DK","RO",
+#                              "PL","DE",
+#                              "IT","UK"))
+#dfx <- df
+df$age <- 2010 - df$RB080 # 2008
+#df$age <- 2004 - df$RB080 # 2004
+df <- subset(df, age < 60)
+df <- subset(df, age > 17)
+
+########################################
+# Excluded households
+## students 18- 24
+df$student[df$age < 25 & df$PL211A == 6] <- "student"
+df$student[df$age < 25 & df$PL211B == 6] <- "student"
+df$student[df$age < 25 & df$PL211C == 6] <- "student"
+df$student[df$age < 25 & df$PL211D == 6] <- "student"
+df$student[df$age < 25 & df$PL211E == 6] <- "student"
+df$student[df$age < 25 & df$PL211F == 6] <- "student"
+df$student[df$age < 25 & df$PL211G == 6] <- "student"
+df$student[df$age < 25 & df$PL211H == 6] <- "student"
+df$student[df$age < 25 & df$PL211I == 6] <- "student"
+df$student[df$age < 25 & df$PL211J == 6] <- "student"
+df$student[df$age < 25 & df$PL211K == 6] <- "student"
+df$student[df$age < 25 & df$PL211L == 6] <- "student"
+df$student <- recode(df$student, "'student'='student';
+                     else='non-student'")
+df <- subset(df, student %in% 'non-student')
+
+########################################
+########################################
+########################################
+
+# lasketaan yksilökohtaiset työkuukaudet
+df$emp <- df$PL073 + (df$PL074*0.5) + df$PL075 + (df$PL076*0.5)
+# lasketaan yksilökohtaiset "aktiivisuuskuukaudet"
+df$tot <- df$PL073 + df$PL074 + df$PL075 + df$PL076 + df$PL080 + 
+  df$PL085 + df$PL086 + df$PL087 + df$PL088 + 
+  df$PL089 + df$PL090
+
+df$cum_months <- ave(df$emp, df$HH_ID, FUN = cumsum) #PL211
+df$cum_max <- ave(df$tot, df$HH_ID, FUN = cumsum) #PL211
+## lasketaan working age -tyyppien määrä kotitalouksittain "köyhyysrajaa"
+## varten
+# LASKETAAN KUINKA MONTA TYÖIKÄISTÄ HLÖ KOTITALOUDESSA ON
+df$count <- recode(df$RB020, "else=1")
+df$count <- as.numeric(df$count)
+df$cum_counts <- ave(df$count, df$HH_ID, FUN = cumsum)
+
+# valitaan suurimman "countin" tapaukset edustamaan HH:ta
+#sel <- ave(df$cum_counts, 
+#           df$HH_ID, FUN = max) == df$cum_counts
+#df.uniq <- df[sel,]
+
+df.hh.uniq <- data.frame(tapply(df$cum_months, df$HH_ID, max))
+df.hh.uniq$HH_ID <- row.names(df.hh.uniq) 
+names(df.hh.uniq) <- c("max_months","HH_ID")
+# valitaan max countit
+df.hh.uniq2 <- data.frame(tapply(df$cum_counts, df$HH_ID, max))
+df.hh.uniq2$HH_ID <- row.names(df.hh.uniq) 
+names(df.hh.uniq2) <- c("max_counts","HH_ID")
+
+# tehdään näistä hh-tason data, jolla voidaan laskea "köyhät" 
+# hh-tasolla.
+
+df.hh <- join(df.hh.uniq,df.hh.uniq2,by="HH_ID")
+
+df.hh$avg_months <- df.hh$max_months/df.hh$max_counts
+# tehdään köyhyysmuuttuja 
+df.hh$work_poor[df.hh$avg_months < 2.4] <- "work.poor"
+df.hh$work_poor[df.hh$avg_months >= 2.4] <- "work.non.poor"
+df.hh$work_poor <- factor(df.hh$work_poor)
+
+df.wp <- join(df,df.hh,by="HH_ID")
+
+df.wp$RB020 <- factor(df.wp$RB020)
+
+d.df <- svydesign(id=~PER_ID, weights=~RB050, data=df.wp)
+wp_ilari_mod <- data.frame(prop.table(svytable(~RB020+work_poor, d.df),1)*100)
+
+wp_ilari_mod
+nrow(df.wp)
+```
+
+
+```{rmerge, cache=TRUE, results='hide', warning=FALSE, message=FALSE}
+# yhdistetään datat
+eu_names <- read.csv("~/workspace/region_coding/eu_names.csv")
+library(gdata)
+eu_names <- rename.vars(eu_names, "name_english","geo.time")
+es_wi <- join(es_wi,eu_names,by="geo.time")
+#
+es_wi <- rename.vars(es_wi, "NUTS_ID","RB020")
+es_wi <- rename.vars(es_wi, "value","eurostat")
+#
+wp_markus <- subset(wp_markus, work_poor %in% 'work.poor')
+wp_markus <- rename.vars(wp_markus, "Freq","markus")
+wp_ilari <- subset(wp_ilari, work_poor %in% 'work.poor')
+wp_ilari <- rename.vars(wp_ilari, "Freq","ilari")
+
+wp_ilari_mod <- subset(wp_ilari_mod, work_poor %in% 'work.poor')
+wp_ilari_mod <- rename.vars(wp_ilari_mod, "Freq","ilari_mod")
+
+wp_total <- join(es_wi,wp_markus,by="RB020")
+wp_total <- join(wp_total,wp_ilari,by="RB020")
+wp_total <- join(wp_total,wp_ilari_mod,by="RB020")
+
+
+wp_total_l <- melt(data=wp_total, id.vars="geo.time", measure.vars=c("eurostat","ilari","markus","ilari_mod"))
+
+wp_total_l$value <- round(wp_total_l$value, 1)
+
+```
+
+## Tulosten vertailua
+
+```{rplot, fig.width=6, fig.height=15}
+ggplot(wp_total_l, aes(x=geo.time, y=value, fill=variable, label=value)) +
+  geom_bar(stat="identity", position="dodge") + geom_text(position = position_dodge(width=1), size=4) +
+  coord_flip() + opts(legend.position="top")
+```
+
+## Johtopäätökset
+
+Mä siis tein omat laskelmani epähuomiossa noiden kuukausittaisten tietojen perusteella. Ne puuttuvat Suomi,Norja,Ruotsi, minkä vuoksi olin pakotettu paperissa käyttämään Tanskaa Nordic-maana.
+
+Joka tapauksessa, en ollut tehnyt vertailua EUROSTATin lukuihin, mutta nyt tuli tehtyä ja eroa omalla laskutavalla on merkittävästi. Mulla ei ole tietoa täsmällisestä kaavasta ja tuossa käytin seuraavaa logiikkaa:
+
+1. valitsin työikäiset ja ei-opiskelijat
+2. laskin työkuukaudet yksilötasolla ja summasin kotitaloustasolle
+3. laskin kotitalouskohtaiset kuukaudet jakamalla ed. kohdan kotitalouskohtaisen summan työikäisten määrällä
+4. määritin köyhäksi kotitalouden, jonka kuukauden jäävät alle 2.4 (20 % 12 kuukaudesta)
+5. määritin köyhiksi yksilöiksi kaikki jotka asuvat ko. kotitalouksista ja laskin osuuden kohdassa 1. rajattujen kotitalouksien kesken.
+
+Kun vähän nuuskin laskutavasta en päässyt tätä pidemmälle. Eurostatin kirjassa [Income and living conditions in Europe](http://epp.eurostat.ec.europa.eu/cache/ITY_OFFPUB/KS-31-10-555/EN/KS-31-10-555-EN.PDF), on sivulla 146 alaviite jossa tarkennetaan *work intensity* indikaattorin taustaa
+
+> This variable differs from the official EU variable used to break down the income poverty rate, by taking into account the fact that people work part-time. It should be noted that it does not exclude households consisting of students, contrary to the EU definition of ‘jobless house- holds’. We are grateful to colleagues from the TARKI research institute (Hungary) for kindly sharing the algorithm they have developed for computing it (we modified the upper bound of the age criterion from ‘less than 65’ to ‘less than 60’). 
+
+Mä en löytänyt Tarkin julkaisuista mitään selvennystä tähän kun nopeasti katoin. Julkaisussa [European Inequalities: Social Inclusion and Income Distribution in the European Union](http://www.tarki.hu/en/publications/EI/) - näistä puhutaan.
+
+Mutta siis kiitos kun vinkkasit datassa olevan myös muuttujat "PL073 + PL074 + PL075 + PL076 + PL080 + PL085 + PL086 + PL087 + PL088 + PL089 + PL090.". Niitä kun ei ollut dokumentaation sisällysluettelossa, niin en tajunnut niitä olevan..!
+
+## Puuttuvat tiedot avainmuuttujista
+
+Loppuun vielä maittain puuttuvat tiedot ko. muuttujien osalta.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE}
+df <- subset(merge_mod, select=c("pl070","pl072","PL073","PL074","PL075","PL076",
+                                 "PL080","PL085","PL086","PL087","PL088","PL089","PL090",
+                                 "RB020","RB080"))
+library(VIM)
+df$RB020 <- factor(df$RB020)
+spineMiss(df[, c("RB020", "PL073")])
+spineMiss(df[, c("RB020", "PL074")])
+spineMiss(df[, c("RB020", "PL075")])
+spineMiss(df[, c("RB020", "PL076")])
+spineMiss(df[, c("RB020", "PL080")])
+spineMiss(df[, c("RB020", "PL085")])
+spineMiss(df[, c("RB020", "PL086")])
+spineMiss(df[, c("RB020", "PL087")])
+spineMiss(df[, c("RB020", "PL088")])
+spineMiss(df[, c("RB020", "PL089")])
+spineMiss(df[, c("RB020", "PL090")])
+```
+
+

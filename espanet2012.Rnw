@@ -1,0 +1,1281 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amsfonts, amsmath,  hyperref, 
+natbib, parskip, times, booktabs, dcolumn, lscape, float, graphics}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[toc,page]{appendix}
+\usepackage[round]{natbib}
+\usepackage{eurosym}
+\usepackage{enumerate}
+
+\widowpenalty=900
+\clubpenalty=900
+\hypersetup{
+ colorlinks,
+ linkcolor=blue,
+ urlcolor=blue
+}
+
+
+
+\author{Markus Kainu}
+\title{Otsikko - Title}
+
+%\setlength{\topmargin}{0mm}
+%\setlength{\oddsidemargin}{0mm}
+\setlength{\textwidth}{140mm}
+\setlength{\textheight}{230mm}
+
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\title{SOCIAL ASSISTANCE AND EU 2020 POVERTY TARGET\footnote{Article draft prepared for ESPAnet 10th anniversary conference September 6-8th, 2012 Edinburgh, United Kingdom - \emph{Work in progress. Please, do not cite without permission of author}} \\
+Targeting Performance of Minimum Income Protection at Multidimensional Poverty in Six EU Member States}
+
+
+\author{\textbf{Markus Kainu}\thanks{PhD Student. Aleksanteri institute, University of Helsinki \& Department of Social Research, University of Turku}\\ 
+\href{mailto:markuskainu@gmail.com}{markuskainu@gmail.com}}
+
+\date{\today}
+\maketitle
+
+\begin{abstract}
+The aim of this article is to analyse the capability of social assistance benefits in reaching the poorest households defined according to recent European Union (EU) poverty and social exclusion target criteria. Paper explores the coverage, leakage and targeting performance of social assistance benefits in six EU countries utilizing the latest cross-sectional EU-SILC 2010 dataset. Results provide new insight into poverty reduction capacity of social assistance benefits in meeting the multidimensional EU2020 poverty target. Current social assistance schemes allocate resources evenly across the dimensions giving the highest emphasis on individuals with multiple deprivations.
+
+\end{abstract}
+
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+
+
+\thispagestyle{empty}
+
+
+
+
+\newpage
+%##################################################
+%##################################################
+\setcounter{page}{1}
+%###################################
+%###################################
+%###################################
+\section{Introduction}
+%###################################
+
+<<chunk_package, echo=FALSE, results='hide', message=FALSE, cache=FALSE, warning=FALSE>>=
+# home directory
+setwd("~/workspace/eusilc/espanet2012/")
+
+# PACKAGES
+# Eurostat data
+library(knitr)
+library(XML)
+# for data manipulation
+library(car)
+library(reshape2)
+library(plyr)
+# for plotting
+library(ggplot2)
+library(grid)
+#library(grid)
+# for tables
+library(xtable)
+library(apsrtable)
+#library(memisc)
+# for survey design
+library(survey)
+@  
+
+
+<<custom-dev2, echo=FALSE, cache=TRUE, warning=FALSE>>=
+square = function(file, width, height) {pdf(file, width = 8, height = 6, pointsize = 10)}
+scatter = function(file, width, height) {pdf(file, width = 8, height = 4, pointsize = 10)}
+shallow = function(file, width, height) {pdf(file, width = 8, height = 3, pointsize = 10)}
+tall = function(file, width, height) {pdf(file, width = 8, height = 10, pointsize = 10)}
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbPalette_dual <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+@
+
+<<chunk_esdata, echo=FALSE, cache=TRUE, warning=FALSE>>=
+se <- read.csv("data/es_se.csv", dec=",")
+se$type <- rep("social.exclusion", rep=33)
+se.l <- melt(se, id.vars=c("geo.time","type"))
+se.l$variable <- recode(se.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+se.l$variable <- as.numeric(levels(se.l$variable)[se.l$variable])
+#
+mp <- read.csv("data/es_mp.csv", dec=",")
+mp$type <- rep("material.deprivation", rep=33)
+mp.l <- melt(mp, id.vars=c("geo.time","type"))
+mp.l$variable <- recode(mp.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+mp.l$variable <- as.numeric(levels(mp.l$variable)[mp.l$variable])
+#
+arpr <- read.csv("data/es_arpr.csv", dec=",")
+arpr$type <- rep("poverty.rate", rep=33)
+arpr.l <- melt(arpr, id.vars=c("geo.time","type"))
+arpr.l$variable <- recode(arpr.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+arpr.l$variable <- as.numeric(levels(arpr.l$variable)[arpr.l$variable])
+#
+wi <- read.csv("data/es_wi.csv", dec=",")
+wi$type <- rep("work.intensity", rep=33)
+wi.l <- melt(wi, id.vars=c("geo.time","type"))
+wi.l$variable <- recode(wi.l$variable, 
+                                   "'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+wi.l$variable <- as.numeric(levels(wi.l$variable)[wi.l$variable])
+# GDP per capita RELATIVE
+gdp <- read.csv("data/es_gdp_pps.csv", dec=",")
+#geo.time <- gdp[,1]
+#gdp_d <- (subset(gdp, select=-c(geo.time)))-100
+#gdp_c <- cbind(geo.time,gdp_d)
+gdp$type <- rep("gdp.per.capita", rep=33)
+gdp.l <- melt(gdp, id.vars=c("geo.time","type"))
+gdp.l$variable <- recode(gdp.l$variable, 
+                                   "'X1995'=1995;
+                           'X1996'=1996;
+                           'X1997'=1997;
+                           'X1998'=1998;
+                           'X1999'=1999;
+                           'X2000'=2000;
+                           'X2001'=2001;
+                           'X2002'=2002;
+                           'X2003'=2003;
+                           'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+gdp.l$variable <- as.numeric(levels(gdp.l$variable)[gdp.l$variable])
+## gdp per capita ABSOLUTE
+gdp.abs <- read.csv("data/es_gdp_abs.csv", dec=",")
+gdp.abs$type <- rep("gdp.per.capita.abs", rep=33)
+gdp.abs.l <- melt(gdp.abs, id.vars=c("geo.time","type"))
+gdp.abs.l$variable <- recode(gdp.abs.l$variable, 
+                                   "'X1995'=1995;
+                           'X1996'=1996;
+                           'X1997'=1997;
+                           'X1998'=1998;
+                           'X1999'=1999;
+                           'X2000'=2000;
+                           'X2001'=2001;
+                           'X2002'=2002;
+                           'X2003'=2003;
+                           'X2004'=2004;
+                                   'X2005'=2005;
+                                   'X2006'=2006;
+                                   'X2007'=2007;
+                                   'X2008'=2008;
+                                   'X2009'=2009;
+                                   'X2010'=2010;
+                                   'X2011'=2011")
+gdp.abs.l$variable <- as.numeric(levels(gdp.abs.l$variable)[gdp.abs.l$variable])
+#
+df <- rbind(se.l,mp.l,arpr.l,wi.l)
+df$type <- factor(df$type)
+df$type <- factor(df$type, 
+                  levels = c("poverty.rate",
+                             "material.deprivation",
+                             "work.intensity",
+                             "social.exclusion"))
+# df.gdp
+df.gdp <- rbind(se.l,mp.l,arpr.l,wi.l,gdp.l,gdp.abs.l)
+df.gdp$type <- factor(df.gdp$type)
+df.gdp$type <- factor(df.gdp$type, 
+                  levels = c("poverty.rate",
+                             "material.deprivation",
+                             "work.intensity",
+                             "social.exclusion",
+                             "gdp.per.capita",
+                             "gdp.per.capita.abs"))
+# region_coding
+region <- read.csv("~/workspace/region_coding/eu_names.csv")
+region <- subset(region, select=c("name_english","NUTS_ID","group_post_soc"))
+names(region) <- c("geo.time","code","group")
+df <- join(df,region,by="geo.time")
+df <- subset(df, geo.time != "Euro area (16 countries)")
+df <- subset(df, geo.time != "Euro area (17 countries)")
+# 
+df.gdp <- join(df.gdp,region,by="geo.time")
+df.gdp <- subset(df.gdp, geo.time != "Euro area (16 countries)")
+df.gdp <- subset(df.gdp, geo.time != "Euro area (17 countries)")
+
+
+@ 
+
+%##################################################
+
+Issues of conceptualizations and empirical measurement of multidimensional poverty has been discussed in a rich literature by authors following the works of Amartya Sen \citep{sen_development_1999,anand_concepts_1997,atkinson_multidimensional_2003,deutsch_measuring_2005,thorbecke2008,alkire_counting_2010,ferreira_multidimensional_2012}. European Comission took a pioneering step in 2011 as part of the EU2020 growth strategy by introducing a three dimensional set of indicators behind the new target for poverty and social exclusion. The new multidimensional measure replaced the preceding measure of \emph{relative at-risk-of-poverty} by supplementing it with the measures of \emph{severe material deprivation} and \emph{low work intensity}. An individual meeting one or more of these sub-indicators are identified as poor. By this reform the Comission established a new conceptual and analytical framework for multidimensional poverty analysis within Union of 27 countries with a clear political target: \emph{to lift at least 20 million people out of poverty and social exclusion by 2020}. \citep{atkinson_income_2010}
+
+%Social assistance programs and minimum income protection are often described as the last resort safety net of the welfare state due to their strategic role in preventing and alleviating poverty of most vulnerable groups in society. There are abundant literature on different classification of social assistance regimes often resulting in rather complex categorisations. A more relevant stream of research for this setting has been research analysing the linkages between social assistance regimes and poverty and inequality outcomes \citep{nelson_minimum_2009,holsch_poverty_2004,sainsbury_poverty_2002,braithwaite_poverty_2000,kuivalainen_comparative_2004,behrendt_at_2002}.
+
+The interplay between welfare state policies and poverty reduction has received attention in comparative studies in over the years \citep{mitchell_income_1991,korpi_paradox_1998,kenworthy_social-welfare_1999,kenworthy_progress_2011}. Main focus has been at the distributional outcomes of welfare state policies. Several studies have also emphasized the social assistance schemes linking the schemes with the poverty outcomes \citep{nelson_minimum_2009,behrendt_at_2002,kuivalainen_comparative_2004}. The attempts to connect welfare state benefits with other forms of poverty than income poverty have been very few, with the exception a recent study by \citet{nelson_counteracting_2012} on link between social assistance benefit levels and material deprivation. Nelson finds a link between low levels of social assistance and high rates of material deprivation when studying 26 EU countries. As the new EU2020 target incorporates not just material deprivation with income poverty but also the indicator for low work intensity, this paper utilizes a multidimensional setting and analyses the effectiveness of social assistance benefits in addressing the independent and overlapping dimensions of EU2020 poverty from comparative perspective in six EU countries. 
+
+Paper is divided in six sections. Section 2 will discuss the EU2020 poverty target in more detail. Section 3 portraits the European poverty through these indicators. The research design with data and methods is described in section 4 and analyses documented in section 5. Some concluding remarks are made in section 6.
+
+%##################################################
+%##################################################
+\section{EU2020 poverty target}
+%##################################################
+%##################################################
+As a part of the new EU 2020 growth strategy, EU has set new indicator and targets for poverty reduction for coming ten years. The new strategy introduces \textit{material deprivation} and \textit{low work intensity} as equally important indicators together with \textit{relative at-risk-of-poverty} in composing the new measure for the \emph{risk poverty and social exclusion}. From the perspective of poverty research the new formulation of indicators looks as an improvement compared to previous unidimensional definition from 2006 with at-risk-of poverty threshold set to 60 percent of the national equalized median income \citep{commission_portfolio_2006}. After the enlargements of EU it soon became apparent that statistics on relative income positions sometimes failed to capture essential differences in living standards across the member states \citep{marlier_eu_2007}. The fruitfulness of non-monetary poverty indicators was recognized in the leading scholarly work related to the process of developing common benchmarks to evaluate social development in the EU countries \citep{atkinson_social_2002}. In 2009 the comission also decided to monitor material deprivation, complementing the income based conceptualization of poverty that were established a few years earlier.
+
+The idea to study material deprivation is not new, but has been on the agenda in poverty research since the late 1970s at least, particularly in the Ireland, the United Kingdom and the United States \citep{townsend_poverty_1979,mack_poor_1985,nolan_resources_1996}. According to this approach the focus of analysis is not income, but rather goods and services households can consume. People unable to afford certain basic items are considered to be materially deprived.  Although the conceptualization and measurement of material deprivation are by no means straightforward, there seems to be some agreement that assessments based on consumption tend to produce more reliable figures on poverty than evaluations in terms of income. For example, respondents in low income household often tend to underreport income, something that may bias poverty estimates based on income surveys.
+
+Although such combined strategies in the measurement of poverty may improve the validity of the findings, for example, by including only those who cannot consume for financial reasons, the results may be problematic to interpret from a policy perspective. One reason is that public programs may have different effects on income and consumption, and certainly, on low work intensity. Thus, there is an important policy dimension to poverty measurement, which has not yet been sufficiently recognized in the literature. In light of the new EU 2020 targets, where material deprivation seems to be placed on equal footing to that of relative income poverty for measuring social progress, it is crucial to move research ahead by incorporating also social policy structures to the comparative analysis of material deprivation. Whereas the income approach to poverty measurement implicitly links social stratification to equality of opportunity, the strategy to focus on consumption and material deprivation concerns more equality of outcomes \citep{ringen1988direct}.
+
+% miltei suoraa lainausta!!!
+
+Despite the methodological improvements the political process behind and implementation of the targets left a lot to hope for. As \citet{copeland_varieties_2012} puts it, new target was the result of a political opportunity seized upon by a number of pro-social policy actors (some in the European Commission, the Parliament, certain Member States as well as non-governmental organizations), rather than an agreement to further Europeanize social policy. In addition, the target is a compromise in that it is constituted quite diversely in terms of whether it will succeed by addressing income poverty, severe material deprivation and/or household joblessness. Further on, the target allows much leeway in response by the Member States, in terms of both which definition they will use and what level of ambition they set for their target. As such, the target risks both incoherence as an approach to social policy and ineffectiveness in terms of precipitating significant action by the Member States to address poverty and social exclusion \citep{copeland_varieties_2012}.
+
+The formulation of indicators has also been critized. \citet{nolan_eu_2011} raised a number of important issues and questionized both the indicators for low work intensity and material deprivation ability to identify those individuals excluded from customary EU living patterns due to lack of resources at the national level. Individual identified poor according to low work intensity indicator differed greatly from other two groups based on social class. The elements of the deprivation index should also be reconsidered.
+
+%One major argument for adopting this multidimensional measures was the need to better understand the characteristics and magnitude of poverty especially in the new member states with lower living standards. By comparing several new and old, low and high income, member states and this paper aims to debate not only the role of benefit type, but also the role of the \textit{"nature of poverty"} that greatly differs between members states in enlarged EU in the interplay between minimum income protection and poverty. Analyses are based on latest EU-SILC dataset.\citep{simons2002extending}
+\newpage
+\section{Poverty in Europe according to EU2020 poverty target}
+
+Figures 1-5 display some of key trends in the evolution of European poverty. Figure 1 shows the  population shares of three sub-indicator and the joint indicator of at risk of poverty and social excusion in all EU27 countries. The previous measure on top left to the current composite measure at bottom right portrait a very different picture of the poverty in Europe in past years. Most notable difference is how the new measure captures the lower living standards of the new postsocialist member states that remained masked in the previous relative income measure. This is largely due to indicator of material deprivation.  
+%######################################################################
+%######################################################################
+
+<<chunk_fig1, echo=FALSE, results='markup', dev='square', fig.ext='pdf', fig.cap="Population shares of at risk of poverty and social exclusion and it's sub-indicators in 2004 - 2011. Source: Eurostat 2012" , fig.pos="H", cache=TRUE, warning=FALSE>>=
+cnames <- subset(df, variable == 2010)
+ggplot(df, aes(x=variable, y=value, 
+               group=geo.time, color=group, 
+               label=geo.time)) + 
+  geom_line() + geom_point() + facet_wrap(~type) +
+  geom_text(data=cnames, aes(x=variable, 
+                             y=value, 
+                             label=geo.time), size=4) + 
+  opts(legend.position="top") + 
+  geom_vline(aes(xintercept=2010), colour="Dim Grey", linetype="dashed") +
+  scale_color_manual(values=cbPalette) +
+  opts(legend.title=theme_blank()) +
+    labs(x = "", 
+       y = "Population share (%)")
+  
+@
+%######################################################################
+%######################################################################
+
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig2, echo=FALSE, results='markup', dev='tall', fig.ext='pdf', fig.cap="Relative and absolute population shares of at risk of poverty and social exclusion and at sub-indicators in 2010. Source: Eurostat 2012", fig.pos="H", cache=TRUE, warning=FALSE>>=
+df.10 <- subset(df, variable == 2010)
+df.10 <- df.10[!is.na(df.10$group),]
+df.10$group <- factor(df.10$group)
+
+
+# rank cntries by social exclusion
+rank <- subset(df.10, type %in% "social.exclusion", 
+               select=c("geo.time","value"))
+rank$rank <- rank(rank$value)
+df.10 <- join(df.10,rank,by="geo.time")
+#
+#df.10 <- sort_df(df.10, vars="rank")
+#
+plot1 <- ggplot(df.10, aes(x=reorder(geo.time, rank), y=value, fill=group)) +
+  geom_bar(stat="identity", position="dodge") +
+  scale_fill_manual(values=cbPalette) + coord_flip() +
+  facet_grid(.~type) + opts(legend.position="top") +
+  labs(x = "", 
+       y = "Population share (%)") +
+   opts(axis.title.x = theme_text(size=11),
+        axis.title.y  = theme_text(angle=90, size=11)) +
+          opts(legend.title=theme_blank()) + 
+          opts(title="Relative population shares (%)")
+
+df.10 <- subset(df, variable == 2010)
+df.10 <- df.10[!is.na(df.10$group),]
+df.10$group <- factor(df.10$group)
+
+pop <- read.csv("data/es_pop.csv", dec=",")
+pop.l <- melt(pop, id.vars=c("geo.time"))
+pop.l$variable <- recode(pop.l$variable, 
+                                   "'X2001'=2001;
+                        'X2002'=2002;
+                        'X2003'=2003;
+                        'X2004'=2004;
+                        'X2005'=2005;
+                        'X2006'=2006;
+                        'X2007'=2007;
+                        'X2008'=2008;
+                        'X2009'=2009;
+                        'X2010'=2010;
+                        'X2011'=2011;
+                        'X2012'=2012;")
+pop.l$variable <- as.numeric(levels(pop.l$variable)[pop.l$variable])
+pop.l$value <- as.numeric(pop.l$value)
+pop.l$value <- pop.l$value / 1000000
+
+#
+pop.l.2010 <- subset(pop.l, variable == 2010)
+pop.w.2010 <- dcast(data=pop.l.2010, geo.time ~ variable, value.var="value")
+names(pop.w.2010) <- c("geo.time","pop2010")
+df.10.pop <- join(df.10,pop.w.2010,by="geo.time")
+df.10.pop$value_pop <- (df.10.pop$value/100) * df.10.pop$pop2010
+
+df.10.pop <- subset(df.10.pop, geo.time != 'EU (27 countries)')
+
+# rank cntries by social exclusion
+rank <- subset(df.10.pop, type %in% "social.exclusion", 
+               select=c("geo.time","value_pop"))
+rank$rank <- rank(rank$value_pop)
+df.10.pop <- join(df.10.pop,rank,by="geo.time")
+#
+plot2 <- ggplot(df.10.pop, aes(x=reorder(geo.time, rank), y=value_pop, fill=group)) +
+  geom_bar(stat="identity", position="dodge") +
+  scale_fill_manual(values=cbPalette_dual) + coord_flip() +
+  facet_grid(.~type) + opts(legend.position="top") +
+  labs(x = "", 
+       y = "Number of poor in million") +
+   opts(axis.title.x = theme_text(size=11),
+        axis.title.y  = theme_text(angle=90, size=11)) +
+          opts(legend.title=theme_blank()) +
+          opts(title="Absolute population shares (millions)")
+
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(2,1)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=1))
+@
+
+%######################################################################
+%######################################################################
+
+Figure 2 shows a cross-sectional picture of both relative and absolute population shares of the EU2020 poverty measure. Figure underlines two obvious issues. First, the most poverty striken countries are either found in the postsosicialist space or in group sufferefing most from the current financial crisis. Second, in terms of meeting the target of lifting at least 20 million people out of poverty and social exclusion by 2020, the attention will be elsewhere, at the large member states. Reducing poverty in millions is easier in countries with millions of poor.
+
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig4, echo=FALSE, results='markup', dev='scatter', fig.ext='pdf', fig.cap="Dependency between at-risk-of-poverty rate and severe material deprivation in 2010 for all countries and 2004 - 2010 for focus countries", fig.pos="H", cache=TRUE, warning=FALSE>>=
+df.w <- dcast(df.gdp, geo.time+variable+group ~
+  type, value.var="value")
+
+df.w.10 <- subset(df.w, variable == 2010)
+
+df.w.10 <- df.w.10[!is.na(df.w.10$group),]
+
+func <- function(df.w.10)
+{
+return(data.frame(COR = cor(df.w.10$poverty.rate, df.w.10$material.deprivation)))
+}
+df.cor <- ddply(df.w.10, .(group), func)
+t4 <- join(df.w.10,df.cor,by="group")
+cnames <- round(stats:::aggregate.formula(cbind(poverty.rate, material.deprivation) ~ COR, data=t4, mean),2)
+
+
+plot1 <- ggplot(t4, aes(x=poverty.rate, y=material.deprivation, 
+                color=group, label=geo.time)) + 
+  geom_point() + geom_text(size=3, hjust=0.0, vjust=-0.5) +
+  opts(title="2010 (all countries)") +
+  labs(x = "at-risk-of-poverty rate (%)", y = "severe material deprivation (%)") +
+  opts(axis.title.x = theme_text(size=10),
+        axis.title.y  = theme_text(angle=90, size=10)) +
+  opts(legend.position="none") +
+  scale_color_manual(values=cbPalette) +
+  geom_smooth(method=lm, se=FALSE) +
+  coord_cartesian(xlim=c(5,30), ylim=c(0,40)) +
+  geom_text(data=cnames, aes(poverty.rate, material.deprivation, label = COR, group=COR),  size=4, color="black")
+
+df.w.six <- subset(df.w, geo.time %in% c("Denmark","Romania",
+                                           "Poland","Germany",
+                                           "Italy","United Kingdom",
+                                             "EU (27 countries)"))
+df.w.six$geo.time <- factor(df.w.six$geo.time)
+cnames <- subset(df.w.six, variable == 2010)
+
+plot2 <- ggplot(df.w.six, aes(x=poverty.rate, y=material.deprivation, 
+                 label=variable, color=group)) + 
+  geom_point() + geom_path() + geom_text(size=3, hjust=0.0, vjust=-0.5) +
+  opts(title="2005 - 2010 (focus countries)") +
+  labs(x = "at-risk-of-poverty rate (%)", y = "severe material deprivation (%)") +
+  opts(axis.title.x = theme_text(size=10),
+        axis.title.y  = theme_text(angle=90, size=10)) +
+  geom_text(data=cnames, aes(poverty.rate,material.deprivation, 
+                             label = geo.time, group=geo.time), size=3) +
+  opts(legend.position="none") +
+  scale_color_manual(values=cbPalette) +
+  coord_cartesian(xlim=c(5,30), ylim=c(0,40))
+
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(1,2)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=2))
+@
+
+%######################################################################
+%######################################################################
+
+
+Figures 3,4 and 5 shed light to the interdependence of subindicator in scatterplots at cross-sectional setting on left and over time for focus countries of the study on the right. Figure 3 shows a clear positive correlation between income poverty and material deprivation. For old member states the development over time have been small, but Poland and Romania have improved in both dimensions.
+
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig5, echo=FALSE, results='markup', dev='scatter', fig.ext='pdf', fig.cap="Dependency between at-risk-of-poverty rate and low work intensity in 2010 for all countries and 2004 - 2010 for focus countries", fig.pos="H", cache=TRUE, warning=FALSE>>=
+df.w <- dcast(df.gdp, geo.time+variable+group ~
+  type, value.var="value")
+
+df.w.10 <- subset(df.w, variable == 2010)
+
+df.w.10 <- df.w.10[!is.na(df.w.10$group),]
+
+func <- function(df.w.10)
+{
+return(data.frame(COR = cor(df.w.10$poverty.rate, df.w.10$work.intensity)))
+}
+df.cor <- ddply(df.w.10, .(group), func)
+t4 <- join(df.w.10,df.cor,by="group")
+cnames <- round(stats:::aggregate.formula(cbind(poverty.rate, work.intensity) ~ COR, data=t4, mean),2)
+
+plot1 <- ggplot(df.w.10, aes(x=poverty.rate, y=work.intensity, 
+                color=group, label=geo.time)) + 
+  geom_point() + geom_text(size=3, hjust=0.0, vjust=-0.5) +
+  opts(title="2010 (all countries)") +
+  labs(x = "at-risk-of-poverty rate (%)", y = "Low work intensity (%)") +
+  opts(axis.title.x = theme_text(size=10),
+        axis.title.y  = theme_text(angle=90, size=10)) +
+  opts(legend.position="none") +
+  scale_color_manual(values=cbPalette) +
+  geom_smooth(method=lm, se=FALSE) +
+  coord_cartesian(xlim=c(5,25), ylim=c(5,25)) +
+  geom_text(data=cnames, aes(poverty.rate, work.intensity, label = COR, group=COR),  size=4, color="black")
+
+
+df.w.six <- subset(df.w, geo.time %in% c("Denmark","Romania",
+                                           "Poland","Germany",
+                                           "Italy","United Kingdom",
+                                             "EU (27 countries)"))
+df.w.six$geo.time <- factor(df.w.six$geo.time)
+cnames <- subset(df.w.six, variable == 2010)
+
+plot2 <- ggplot(df.w.six, aes(x=poverty.rate, y=work.intensity, 
+                 label=variable, color=group)) + 
+  geom_point() + geom_path() + geom_text(size=3, hjust=0.0, vjust=-0.5) +
+  opts(title="2005 - 2010 (focus countries)") +
+  labs(x = "at-risk-of-poverty rate (%)", y = "Low work intensity (%)") +
+  opts(axis.title.x = theme_text(size=10),
+        axis.title.y  = theme_text(angle=90, size=10)) +
+  geom_text(data=cnames, aes(poverty.rate,work.intensity, 
+                             label = geo.time, group=geo.time), size=3) +
+  opts(legend.position="none") +
+  scale_color_manual(values=cbPalette) +
+  coord_cartesian(xlim=c(5,25), ylim=c(5,25))
+
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(1,2)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=2))
+@
+
+%######################################################################
+%######################################################################
+
+Figure 4 shows the dependency between income poverty and low work intensity and the linkage looks less straightforward. Correlations are low, though positive, and the movement over time has been less consistent. This is true also for material deprivation and low work intensity in figure 5. Correlation between  material deprivation and low eork intensity remains low most of the poverty reduction over time has happened within material deprivation. Finding by \citet{nolan_eu_2011} about the inconsistencies between the subindicators are supported here.
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig7, echo=FALSE, results='markup', dev='scatter', fig.ext='pdf', fig.cap="Dependency between severe material deprivation and low work intensity in 2010 for all countries and 2004 - 2010 for focus countries", fig.pos="H", cache=TRUE, warning=FALSE>>=
+df.w <- dcast(df.gdp, geo.time+variable+group ~
+  type, value.var="value")
+
+df.w.10 <- subset(df.w, variable == 2010)
+
+df.w.10 <- df.w.10[!is.na(df.w.10$group),]
+
+func <- function(df.w.10)
+{
+return(data.frame(COR = cor(df.w.10$material.deprivation, df.w.10$work.intensity)))
+}
+df.cor <- ddply(df.w.10, .(group), func)
+t4 <- join(df.w.10,df.cor,by="group")
+cnames <- round(stats:::aggregate.formula(cbind(material.deprivation, work.intensity) ~ COR, data=t4, mean),2)
+
+plot1 <- ggplot(df.w.10, aes(x=material.deprivation, y=work.intensity, 
+                color=group, label=geo.time)) + 
+  geom_point() + geom_text(size=3, hjust=0.0, vjust=-0.5) +
+  opts(title="2010 (all countries)") +
+  labs(x = "Severe material deprivation (%)", y = "Low work intensity (%)") +
+  opts(axis.title.x = theme_text(size=10),
+        axis.title.y  = theme_text(angle=90, size=10)) +
+  opts(legend.position="none") +
+  scale_color_manual(values=cbPalette) +
+  geom_smooth(method=lm, se=FALSE) +
+  coord_cartesian(xlim=c(0,40), ylim=c(0,25))  +
+  geom_text(data=cnames, aes(material.deprivation, work.intensity, label = COR, group=COR),  size=4, color="black")
+
+
+df.w.six <- subset(df.w, geo.time %in% c("Denmark","Romania",
+                                           "Poland","Germany",
+                                           "Italy","United Kingdom",
+                                             "EU (27 countries)"))
+df.w.six$geo.time <- factor(df.w.six$geo.time)
+cnames <- subset(df.w.six, variable == 2010)
+
+plot2 <- ggplot(df.w.six, aes(x=material.deprivation, y=work.intensity, 
+                 label=variable, color=group)) + 
+  geom_point() + geom_path() + geom_text(size=3, hjust=0.0, vjust=-0.5) +
+  opts(title="2005 - 2010 (focus countries)") +
+  labs(x = "Severe material deprivation", y = "Low work intensity (%)") +
+  opts(axis.title.x = theme_text(size=10),
+        axis.title.y  = theme_text(angle=90, size=10)) +
+  geom_text(data=cnames, aes(material.deprivation,work.intensity, 
+                             label = geo.time, group=geo.time), size=3) +
+  opts(legend.position="none") +
+  scale_color_manual(values=cbPalette) +
+  coord_cartesian(xlim=c(0,40), ylim=c(0,25))
+
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(1,2)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=2))
+@
+
+
+%######################################################################
+%######################################################################
+
+
+%\section{The impact of social assistance in Europe}
+
+
+
+%######################################################################
+%######################################################################
+\newpage
+%######################################################################
+%######################################################################
+\section{Research design}
+%######################################################################
+%######################################################################
+
+\subsection{Purpose of the study}
+
+The main question in this research is \emph{to what extend social assistance schemes are able to address the poverty defined as in EU2020 poverty target?} Rather than analysing the performance of social assistance schemes per se, this article aims at finding whether current minimun income protection schemes are able to meet the poor individuals identified according to the multidimensional poverty approach the new target utilizes. Poverty alleviation is a main objective of social assistance schemes and therefore it is relevant to analyze to what extend this objective can be fullfilled in these new conditions.
+
+\subsection{Data}
+
+The data on which the analysis are based on comes from the 2010 cross-sectional file of EU Survey on Income and Living Conditions (EU-SILC). Dataset consist of cross-sectional data including variables on income, poverty, social exclusion, housing and other living conditions in EU. EU-SILC is conducted by the member states and coordinated by Eurostat. 
+
+The analysis is simplified by limiting the number of countries to six using two criterias. First, as the EU2020 poverty target is a quantitative one and formulated as millions of individuals, the countries chosen are the largest by population as those they will be in key role in meeting the target. Second, to enrich the comparative setting, the countries chosen represent both the new (Romania and Poland) and old (United Kingdom, Italy, Denmark, Germany) EU member states as well as the three welfare regimes by \citet{esping-andersen_three_1990} with post-socialist Romania and Poland and Southern European Italy.
+
+Analysis is done at level of individuals. The number of respondents in the EU-SILC cross-sectional files varies across the studied countries from 48000 (Italy) to 15000 (Denmark) respondents. In cases where the variables of interest are measured at the household level each individual is ascribed the household value. 
+
+%Data on income and social benefits are collected both at household and individual level. Household data includes aggregates for gross and disposable income and household related social benefits. For the analysis here the amount of individual benefits (eg. unemployment benefit or old-age benefits) are aggregated at the household level. The composition of the key income variables are explained in detail in appendix 1. Macro level data on social spending is obtained from European system of integrated social protection statistics (ESSPROS).
+
+Key interest in this article is on social assistance benefits. Information on social assistance is provided through a variable \textit{social exclusion, elsewhere not classified}. It incorporates two components, namely on income support (periodic payments to people with insufficient resources) and other cash benefits (support for destitute and vulnerable persons to help alleviate poverty or assists in difficult situations). In addition, data is also available on means-tested housing allowances. The social assistance variable used in this paper is constructed by joining the two components, i.e. social exclusion not elsewhere classified and means-tested housing allowance.
+
+%#########################################################
+\begin{table}[H]
+\begin{center}
+\caption{Focus countries}
+{\footnotesize
+\begin{tabular}{p{3cm}p{3cm}p{2cm}}
+  \toprule
+  \textbf{Country} & \textbf{Regime} &  \textbf{Population (million)} \\ \midrule
+  Romania & Low income Postsocialist & 21.5  \\
+  Poland & Middle income Postsocialist & 38.1\\
+  Germany & Continental Europe & 82.2 \\
+  United Kingdom & Liberal regime & 61.2 \\
+  Italy & Southern European &  59.6\\
+  Denmark & Nordic & 5.5\\
+ \bottomrule
+ \end{tabular}
+}
+\end{center}
+\end{table}
+
+
+\subsection{Methods}
+
+From methodological pewrspective the new poverty measure challenges the  methods of analysing the poverty and distributional outcomes of income redistribution. When poverty is something more than just relatively low income. The main research question \emph{how social assistance is targeted at EU2020 targets poverty and social exclusion} asks for two kind of methods. 
+First, the poor individuals have to be identified and poverty measures aggregated, and 
+second, the targeting performance of social assistance benefits estimated at these poverty measures. Methodology for the first task, both for identifying the poor and for aggregating the poverty measure, is borrowed from Eurostat and follows the formulation of EU2020 target for poverty and social exclusion \citep{atkinson_income_2010}. Simple Boolean algebra is used to determine the conjunction or overlap between dimensions. Methodology for coverage, leakage and targeting performance is built on common methodology in development economics \citep[primarily][]{coady_targeting_2004} and is applied here in multidimensional setting. 
+
+Analysis are done with \textbf{R} \citep{R_2012} using packages \textbf{survey} \citep{survey_2012}, \textbf{laeken} \citep{laeken_2012}, \textbf{venneuler} \citep{venneuler_2011} and \textbf{ggplot2} \citep{ggplot_2009}. The partial R-code can be found here \href{http://research.muuankarski.org/code/}{research.muuankarski.org/code/}.
+
+\subsubsection*{Identifying the poor}
+
+Identification of poor individuals follows the Eurostat definitions of EU2020 poverty target \citep{atkinson_income_2010}. Target indicator at risk of poverty and social exclusion sums up the number of individuals who are at risk of poverty, severely materially deprived or living in households with very low work intensity. Individuals present in several sub-indicators are counted only once.
+
+First subindicator, \textit{at-risk-of-poverty} is indirect and relative notion of poverty measured at 60\% of national median income \citet{atkinson_social_2002}. Second subindicator, severe material deprivation, relates to economic strain and household durables. According to Eurostat, \emph{Severely materially deprived persons have living conditions greatly constrained by a lack of resources and cannot afford at least four of the following: to pay rent or utility bills; to keep their home adequately warm; to pay unexpected expenses; to eat meat, fish or a protein equivalent every second day; a week holiday away from home; a car; a washing machine; a colour TV; or a telephone.} Third subindicator, people living in households with very low work intensity, refers to a situation where a person is aged 0-59 and the working age members in the household worked less than 20 \% of their potential during the past year.
+
+In resulting dataset each individual had either 1 or 0 for each of three deprivations. Individuals deprived in more than one dimension were identified using simple Boolean algebra resulting variable of joint distribution of deprivation. As the dimensions are different adding them up in any other way is not advisable. One can say that an individual deprived in terms of income and material durables is more deprived and income poor only, but one cannot compare with someone deprived in terms of work and material deprivation. This measure does not give satisfying asnwer to a question how deprived individual is. Each dimensions is 1 or 0 and severity of deprivation is therefore not captured.
+
+%###################################
+%###################################
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.5\textwidth]{venn/venn_example.pdf}
+      \caption{Independent and overlapping subgroups of EU2020 poverty target used in analysis}
+\end{figure}
+%###################################
+%###################################
+
+One way presenting of such data is trough a Venn diagrams as proposed by \citet{ferreira_multidimensional_2012} and applied by \citet[p. 127]{atkinson_income_2010} in very similar context as here. Figure 6 presents the analytical frame of this study as a Venn diagram showing the six main subgroups formed by three overlapping indicators. 
+
+\subsubsection*{Assessing the targeting performance of social assistance}
+%\subsubsection{Coverage, leakage and targeting}
+
+Targeting performance of social assistance schemes is analysed through coverage, targeting errors and Coady-Grosh-Hoddinot indicator of targeting performance. All measures are calculated for each individual subindicators and for all six subgroups.
+
+Coverage rates are calculated as follows, where $N_{p,1}$ is the number of poor households in the program and $N_p$ is the total number of poor households.
+
+\begin{equation}
+C = \frac{N_{p,1}}{N_p}
+\end{equation}
+
+%Two types of targeting errors are calculated for all groups. Type I errors, errors of inclusion, happen when non-poor individuals are included in the program due to inaccurate eligibility specification, incentive effective effects, elite capture etc. Type 1 error is also known as leakage. Type II errors, errors of exclusion, takes place when the poor are excluded from program benefits due to budgetary limitations, geographical delimitations of program scope, lack of outreach to inform the poor of a program, etc.
+
+A common approach to evaluate the targeting performance of means tested transfer instruments is to compare leakage (Type 1 error) and undercoverage (Type 2 error) rates. Leakage is the proportion of those individuals reached by the program (i.e., are “in” denoted by i, as opposed to “out of,” denoted by o, the program) who are classified as nonpoor (errors of inclusion) or 
+
+\begin{equation}
+L = \frac{N_{np,i}}{N_i}
+\end{equation}
+
+where $N_{np,i}$ is the number of nonpoor individuals in the program and $N_i$ is the total number of individuals in the program.
+
+Undercoverage is the proportion of poor individuals who are not included in the program (errors of exclusion), 
+
+\begin{equation}
+UC = \frac{N_{p,0}}{N_p}
+\end{equation}
+
+where $N_{p,o}$ is the number of poor individuals who are left out of the program and $N_p$ is the total number of poor individuals.
+
+Targeting differential is the coverage of the poor minus leakage
+
+\begin{equation}
+TD = C - L
+\end{equation}
+
+
+Both the coverage and targeting errors are "either or" type of measures of extend of the program and not captivating the generosity or the value of the benefit. To find out are the benefit rates higher for deprived than for non-deprived a so called Coady-Grosh-Hoddinot indicator is being applied. Measure is based on a comparison of actual performance to a common reference outcome, namely, the outcome that would result from neutral (as opposed to progressive or regressive) targeting. A neutral targeting outcome means that both the poor and the non-poor receives equal share (relative to group size) the transfer budget. A universal program in which all individual receive identifical benefit would targeting neutral. The indicator used in this analysis is constructed by dividing the actual outcome by the appropriate neutral outcome. For example, if the 40 \% of the population qualifies as poor and they receive 60 percent of the benefits, then the indicator of performance is calculated as (60/40) = 1.5. A higher value is associated with better targeting performance. A value of 1.5 means that targeting has led to the target group (here the poor individuals) receiving 50 percent more than they would have received under a universal intervention. A value greater than 1 indicates progressive targeting; less than 1, regressive targeting; and unity denotes neutral targeting.
+
+
+%###################################
+%###################################
+%###################################
+%###################################
+\newpage
+\section{Results}
+%###################################
+%###################################
+
+The analysis is divided in three subsections. In the first section focus is on the descriptive analysis of different dimensions of poverty target. Second section introduces the social assistance benefits and analyses the coverage and leakage rates in the focus countries. Third section shapes up the analysis by incorporating the value of the social assistance benefit and presents results on targeting performance using Coady-Grosh-Hoddinott indicator.
+
+\subsection{Dimensional overlap of indicators}
+
+<<chunk_table_povrates, echo=FALSE, results='hide', cache=TRUE, warning=FALSE>>=
+df.coverage <- read.csv("~/workspace/eusilc/espanet2012/df.coverage.csv")
+
+d.df <- svydesign(id=~PER_ID, weights=~RB050, data=df.coverage)
+
+#
+ip <- data.frame(prop.table(svytable(~RB020+income_poor+benefit, d.df),1)*100)
+wp <- data.frame(prop.table(svytable(~RB020+work_poor+benefit, d.df),1)*100)
+mp <- data.frame(prop.table(svytable(~RB020+material_poor+benefit, d.df),1)*100)
+md <- data.frame(prop.table(svytable(~RB020+multidim2+benefit, d.df),1)*100)
+
+### Poverty rates in studied countries
+
+tbl.ip <- data.frame(prop.table(svytable(~RB020+income_poor, d.df),1)*100)
+tbl.mp <- data.frame(prop.table(svytable(~RB020+material_poor, d.df),1)*100)
+tbl.wp <- data.frame(prop.table(svytable(~RB020+work_poor, d.df),1)*100)
+tbl.mul <- data.frame(prop.table(svytable(~RB020+multi, d.df),1)*100)
+
+tbl.ip <- subset(tbl.ip, income_poor == "inc.poor")
+tbl.mp <- subset(tbl.mp, material_poor == "mt.poor")
+tbl.wp <- subset(tbl.wp, work_poor == "work.poor")
+tbl.mul <- subset(tbl.mul, multi == "poor")
+
+names(tbl.ip) <- c("Country","type","value")
+names(tbl.mp) <- c("Country","type","value")
+names(tbl.wp) <- c("Country","type","value")
+names(tbl.mul) <- c("Country","type","value")
+
+tbl <- rbind(tbl.ip,tbl.mp,tbl.wp,tbl.mul)
+tbl$value <- round(tbl$value, 2)
+tbl.w <- dcast(tbl, Country ~ type, value.var="value")
+names(tbl.w) <- c("Country","At-risk-of-poverty",
+                  "Severe material deprivation",
+                  "Joblessness",
+                  "Poverty and social exclusion")
+
+t6 <- xtable(tbl.w, caption = "Poverty rates...")
+print.xtable(t6, 
+    table.placement = "H", caption.placement = "top", size = "footnotesize",
+             include.rownames=FALSE)
+@
+
+%###################################
+%###################################
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.8\textwidth]{venn/venn_merge_final.pdf}
+      \caption{Independent and overlapping population shares of EU2020 poverty indicators in Venn-diagrams. Source: EU-SILC 2010}
+\end{figure}
+%###################################
+
+Venn-diagrams in figures 8 and 9 are presenting the relative and absolute population shares of independent and overlapping dimensions of EU2020 poverty target. The larger the overlap between deprivations, the greater is the extent of interdependence. First, looking at the figure 8 with relative population shares one can note that relative at-risk-of-poverty rate is the biggest group in all countries but Romania. Low work intensity ranks the second in Western Europe, whereas material deprivation is a major challenge in postsocialist countries. Severely materially and only materially deprived individuals in Romania have the biggest population share of all subgroups in studied countries with 13 percent share. Same share in Western European countries varies from 0.5 in Denmark to 1.8 in UK. In addition, in all countries the independent share of each dimensions is less than the overlapping share.
+
+%###################################
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.8\textwidth]{venn/venn_merge_final_pop.pdf}
+      \caption{Independent and overlapping population sizes of EU2020 poverty indicators in Venn-diagrams. Source: EU-SILC 2010}
+\end{figure}
+%###################################
+%###################################
+
+When looking at the absolute population shares in figure 9 we can see the obvious that in this group of countries the total population size determines the size of poverty. Greatest number of individual at risk or income poverty are found in Italy, 6.9 million. Germany has the greatest number of individuals, 2.8 million, living in low work intensity households. The greatest number of materially deprived individuals are found in Romania, 2.8 millions.
+
+\subsection{Targeting performance of social assistance benefits}
+
+As we observed in the previous section both the proportional sizes of different dimensions and degree of overlap vary between the countries, the post-socialist vs. Western Europe divide being a major factor. The size of deprived population and the degree of overlap between dimensions do certainly play a major role in the capability of social assistance to address the poverty. Another issues naturally is the extend and generosity of the benefit scemes. Table 2 presents some figures on overall extend and generosity of social assistance benefits based on EU-SILC data.
+
+%#########################################################
+\begin{table}[H]
+\begin{center}
+\caption{Key indicators of social assistance schemes. Source:EU-SILC 2010}
+{\footnotesize
+\begin{tabular}{p{2.5cm}p{2.5cm}p{2.5cm}p{3cm}p{3cm}}
+  \toprule
+  \textbf{Country} & \textbf{Mean benefit \euro} & 
+  \textbf{Poverty line \euro} & \textbf{Mean benefit/ poverty line (\%)} &
+  \textbf{Total coverage (\%)} \\ \midrule
+  Romania & 34 & 1264 & 2.6 & 23.8\\
+  Poland & 32 & 2679 & 1.2 & 6.4\\
+  Germany & 461 & 11407 & 4.0 & 11.6\\
+  United Kingdom & 1105 & 10604 & 10.4 & 18.0\\
+  Italy & 93 &  9819 & 1.0 & 4.6\\
+  Denmark & 215 & 15352 & 1.4 & 11.6\\
+ \bottomrule
+ \end{tabular}
+}
+\end{center}
+\end{table}
+%######################################################################
+%######################################################################
+
+
+\subsubsection*{Coverage}
+
+Table showed the overall coverage rates for social assistance scemes. This section focuses on how social assistance covers the different subgroups of poor individuals. Coverage rate equals to share of social assistance recipients in particular group. Figure 9 shows the coverage and poverty rates for each three individual EU2020 subindicator as well for the joint indicator of at risk of poverty and social exclusion. The right column of each four plots presents the coverage for that particular group of poor. The blue bar with black numbers represents the particular rate of poverty/deprivation and yellow bar the coverage rate of that group as percent from 1 to 100.
+
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig21data, echo=FALSE, results='hide', cache=TRUE, warning=FALSE>>=
+########################################## 
+# Income poverty
+
+ip.w <- dcast(ip, RB020 + income_poor ~ benefit , value.var="Freq")
+ip.w$cov <- (ip.w$recipient/(ip.w$non.recipient+ip.w$recipient))*100
+ip.w$share <- ip.w$non.recipient + ip.w$recipient
+
+ip.w$cov <- round(ip.w$cov, 1) 
+ip.w$share <- round(ip.w$share, 1)
+
+plot1 <- ggplot(data=ip.w, aes(x=RB020)) + facet_wrap(~income_poor) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=3, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=3, color="black") +
+  opts(title="Income poor individuals") +
+  labs(y="coverage rate & poverty rate (%)", x="")
+########################################## 
+# MAterial deprivation
+
+
+mp.w <- dcast(mp, RB020 + material_poor ~ benefit , value.var="Freq")
+mp.w$cov <- (mp.w$recipient/(mp.w$non.recipient+mp.w$recipient))*100
+mp.w$share <- mp.w$non.recipient + mp.w$recipient
+
+mp.w$cov <- round(mp.w$cov, 1) 
+mp.w$share <- round(mp.w$share, 1)
+
+plot2 <- ggplot(data=mp.w, aes(x=RB020)) + facet_wrap(~material_poor) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=3, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=3, color="black") +
+  opts(title="Materially deprived individuals") +
+  labs(y="coverage rate & poverty rate (%)", x="")
+
+########################################## 
+# Work poverty
+
+
+wp.w <- dcast(wp, RB020 + work_poor ~ benefit , value.var="Freq")
+wp.w$cov <- (wp.w$recipient/(wp.w$non.recipient+wp.w$recipient))*100
+wp.w$share <- wp.w$non.recipient + wp.w$recipient
+
+wp.w$cov <- round(wp.w$cov, 1) 
+wp.w$share <- round(wp.w$share, 1)
+
+plot3 <- ggplot(data=wp.w, aes(x=RB020)) + facet_wrap(~work_poor) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=3, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=3, color="black") +
+  opts(title="Low work intensity individuals") +
+  labs(y="coverage rate & poverty rate (%)", x="")
+
+########################################## 
+# At risk of social exclusion and poverty
+
+md$Freq <- round(md$Freq, 1)
+
+md.w <- dcast(md, RB020 + multidim2 ~ benefit , value.var="Freq")
+md.w$cov <- (md.w$recipient/(md.w$non.recipient+md.w$recipient))*100
+md.w$share <- md.w$non.recipient + md.w$recipient
+
+md.w$cov <- round(md.w$cov, 1) 
+md.w$share <- round(md.w$share, 1)
+
+ps <- data.frame(prop.table(svytable(~RB020+multi+benefit, d.df),1)*100)
+ps.w <- dcast(ps, RB020 + multi ~ benefit , value.var="Freq")
+ps.w$cov <- (ps.w$recipient/(ps.w$non.recipient+ps.w$recipient))*100
+ps.w$share <- ps.w$non.recipient + ps.w$recipient
+
+ps.w$cov <- round(ps.w$cov, 1) 
+ps.w$share <- round(ps.w$share, 1)
+
+plot4 <- ggplot(data=ps.w, aes(x=RB020)) + facet_wrap(~multi) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() + 
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=3, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-3, size=3, color="black") +
+  opts(title="At risk of social exclusion and poverty") +
+  labs(y="coverage rate & poverty rate (%)", x="")
+
+# vaihtoehto
+#geom_text(aes(y=recipient, label=cov), hjust=-0.1, vjust=1, size=3) +
+#geom_text(aes(y=share, label=share), hjust=0.5, vjust=-1, size=3, color="Dim Grey") +
+
+@
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig21, echo=FALSE, results='markup', dev='square', fig.ext='pdf', fig.cap="Coverage rates of social assistance benefits on at risk of poverty and social exclusion and subindicator in 2010 (poverty rates with blue bars and black numbers). Source: EU-SILC 2010", fig.pos="H", cache=TRUE, warning=FALSE>>=
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(2,2)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=2))
+print(plot3, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=1))
+print(plot4, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=2))
+@
+
+%######################################################################
+%######################################################################
+
+Income poverty vary only slightly between countries, but variation in coverage rates is lot higher. In each countries the coverage is higher for poor indidividuals, especially in the case UK, Romania and Germany. Rates for material deprivation vary greatly between countries with postsocialist Poland and Romania with highest rates. Social assistance cover these individuals at slightly worse rate in Romania, but better in all other countries with rates over 60 percent in UK, Denmark and Germany. Again the rates for low work intensity are consistent across the countries, but the coverage rates vary greatly. Social assistance in UK covers over three fourths of the jobless individuals that consist 9.8 percent of the population. Rate of joblessness is similar in Italy, but the social assistance covers only 9.9 percent of the deprived. The joint indicator smoothens the variation in both respect, leaving the UK and Germany with highest and Italy and Poland with lowest coverage rates but with equally high rates of at risk of poverty and social exclusion.
+
+Explanation here\footnote{Coverage rates are calculated out of particular poverty rate. For example in UK the at-risk of poverty rate was 16.1 and social assistance covered 48.6 percent of those poor}
+
+Similar figures are presented for individual and overlapping subgroups (see figure 7) in figure 11 by focus countries. The three groups at the bottom (b,c,d) are the  subgroups consisting of only unidimensionally deprived individuals. The next three groups (e,f,g) include individual deprived in two subindicators. The group on top (h) are the individual deprived in all dimensions. These individuals live in households that are ar risk on income poverty, are severily materially deprived and have low work intensity.
+%######################################################################
+%######################################################################
+
+<<chunk_fig26, echo=FALSE, results='markup', dev='scatter', fig.ext='pdf', fig.cap="Coverage rates of social assistance benefits on independent and overlapping population shares of EU2020 poverty target in 2010 (poverty rates with blue bars and black numbers). Source: EU-SILC 2010", fig.pos="H", cache=TRUE, warning=FALSE>>=
+ggplot(data=subset(md.w, multidim2 != 'a.non.poor'), aes(x=multidim2)) + facet_wrap(~RB020) +
+  geom_bar(aes(y=share), stat="identity", fill="#56B4E9") +
+  geom_bar(aes(y=recipient), stat="identity", fill="#E69F00") + coord_flip() +
+  geom_text(aes(y=recipient, label=cov), hjust=-0.1, size=3, color="#E69F00") +
+  geom_text(aes(y=recipient, label=share), hjust=-2.2, size=3, color="black")  +
+  labs(y="coverage rate & poverty rate (%)", x="")
+@
+
+The rates or deprivation are generally higher in unidimensional groups as expected, though the union of income poverty and material deprivation in postsocialist and income poverty and low work intensity in Western Europe also shows high rates. A vague and expected trend can be seen where the coverage rate is increasing with the severity of deprivation, meaning that coverage rates are higher for individual with multiple deprivations. A prime examples of that are Germany, Romania and UK. As for the group h, individuals deprived in all dimensions, the coverage rates climb up to 82 and 94 percents in Germany and UK, respectively. The population share of this group is small in all countries, varying from 0.5 percent in Denmark to 2.2 in Romania. The poor performance of Italian social assistance benefits becomes more evident in this setting.
+
+\subsubsection*{Targeting Errors}
+
+One side of targeting performance of social assistance are the targeing errors. Table 3 presents the type 1 errors (leakage) for each country and type 2 errors (undercoverage) and targeting differentials (coverage minus leakage) for each poverty subgroup in each country. The lower the both errors are the better (pro-poor) targeting is, as opposed to targeting differential, in which higher value indicates better targeting.
+
+Germany stands out with good performance across all subgroups, whereas Italy does a lot worse. Targeting differentials are lowest for individual who are only work poor indicating that those are most out of reach of social assistance. Group with individual deprived in all three dimensions is having the highest targeting differential.
+
+<<chunk_tbl, echo=FALSE, results='hide', warning=FALSE, cache=TRUE>>=
+
+error <- data.frame(svytable(~RB020+multi+benefit, d.df))
+error.w <- dcast(error, RB020 ~ multi + benefit, value.var="Freq")
+error.w$error1 <- error.w$non.poor_recipient / (error.w$non.poor_recipient + error.w$poor_recipient) * 100
+
+error.w <- subset(error.w, select=c("RB020","error1"))
+
+error2 <- data.frame(svytable(~RB020+multidim2+benefit, d.df))
+error2 <- subset(error2, multidim2 != 'a.non.poor')
+error2.w <- dcast(error2, multidim2 ~ benefit + RB020, value.var="Freq")
+
+error2.w$error2_DE <- error2.w$non.recipient_DE / 
+  (error2.w$non.recipient_DE + error2.w$recipient_DE) * 100
+error2.w$error2_UK <- error2.w$non.recipient_UK / 
+  (error2.w$non.recipient_UK + error2.w$recipient_UK) * 100
+error2.w$error2_IT <- error2.w$non.recipient_IT / 
+  (error2.w$non.recipient_IT + error2.w$recipient_IT) * 100
+error2.w$error2_RO <- error2.w$non.recipient_RO / 
+  (error2.w$non.recipient_RO + error2.w$recipient_RO) * 100
+error2.w$error2_PL <- error2.w$non.recipient_PL / 
+  (error2.w$non.recipient_PL + error2.w$recipient_PL) * 100
+error2.w$error2_DK <- error2.w$non.recipient_DK / 
+  (error2.w$non.recipient_DK + error2.w$recipient_DK) * 100
+
+error2.w2 <- subset(error2.w, select=c("multidim2","error2_DE",
+                                       "error2_UK","error2_IT",
+                                       "error2_PL","error2_RO",
+                                       "error2_DK"))
+
+error2.l <- melt(error2.w2, id.vars="multidim2", 
+                 measure.vars=c("error2_DE","error2_UK",
+                                "error2_IT","error2_PL",
+                                "error2_RO","error2_DK"))
+library(stringr)
+error2.l$variable <- str_replace_all(error2.l$variable, "error2_", "")
+names(error2.l) <- c("multidim2","RB020","error2")
+df.error <- join(error2.l,error.w,by="RB020", type="right")
+
+df.z <- subset(md.w, select=c("RB020","multidim2","cov"))
+
+df.error2 <- join(df.error,df.z,by=c("RB020","multidim2"))
+
+df.error2$tar.diff <- df.error2$cov - df.error2$error1
+
+df.error2$cov <- NULL
+
+df.error.tbl <- melt(df.error2, id.vars=c("RB020","multidim2"), measure.vars=c("error1","error2","tar.diff"))
+
+df.error.tbl$value <- round(df.error.tbl$value, 1)
+
+df.error.tbl.w <- dcast(df.error.tbl, multidim2 +variable ~ RB020, value.var="value")
+df.tbl <- df.error.tbl.w[c(2,1,3,4,5,6,7,8)]
+
+df.tbl$variable <- recode(df.tbl$variable, "'error1'='Type 1 error (leakage)';
+                          'error2'='Type 2 error (undercoverage)';
+                          'tar.diff'='Targeting differential'")
+names(df.tbl) <- c("Measure","deprivation subgroup","DE","DK","IT","PL","RO","UK")
+
+t2 <- xtable(df.tbl, caption = "Targeting errors and targeting differentials")
+print.xtable(t2, 
+    table.placement = "H", caption.placement = "top", size = "scriptsize",
+             include.rownames=FALSE)
+@
+
+%######################################################################
+%######################################################################
+
+
+\begin{table}[H]
+\begin{center}
+\caption{Targeting errors and targeting differentials}
+{\scriptsize
+\begin{tabular}{llrrrrrr}
+  \hline
+\textbf{Measure} & \textbf{deprivation subgroup} & \textbf{DE} & \textbf{DK} & \textbf{IT} & \textbf{PL} & \textbf{RO} & \textbf{UK} \\ 
+  \hline
+\multicolumn{2}{l}{Type 1 error (leakage)} & 25.20 & 47.20 & 51.80 & 32.40 & 35.60 & 35.40 \\ 
+  Type 2 error (undercoverage) & b.IncomePoor & 72.20 & 82.20 & 93.40 & 87.20 & 60.00 & 68.00 \\ 
+  Targeting differential & b.IncomePoor & 2.50 & -29.60 & -44.90 & -19.90 & 4.20 & -3.50 \\ 
+  Type 2 error (undercoverage) & c.MaterialPoor & 69.20 & 24.00 & 85.50 & 90.70 & 74.00 & 65.10 \\ 
+  Targeting differential & c.MaterialPoor & 8.10 & 32.80 & -39.30 & -23.10 & -9.40 & -2.10 \\ 
+  Type 2 error (undercoverage) & d.WorkPoor & 78.50 & 38.00 & 95.70 & 94.40 & 79.90 & 27.40 \\ 
+  Targeting differential & d.WorkPoor & -4.60 & 15.70 & -47.50 & -28.60 & -16.40 & 36.50 \\ 
+  Type 2 error (undercoverage) & e.IncomePoor\&MaterialPoor & 39.60 & 41.50 & 88.10 & 75.50 & 41.30 & 52.40 \\ 
+  Targeting differential & e.IncomePoor\&MaterialPoor & 34.80 & 12.80 & -37.50 & -8.90 & 23.30 & 14.60 \\ 
+  Type 2 error (undercoverage) & f.IncomePoor\&WorkPoor & 37.80 & 70.50 & 90.40 & 71.10 & 60.90 & 31.50 \\ 
+  Targeting differential & f.IncomePoor\&WorkPoor & 36.80 & -17.80 & -42.50 & -3.00 & 6.10 & 33.80 \\ 
+  Type 2 error (undercoverage) & g.MaterialPoor\&WorkPoor & 48.00 & 17.20 & 79.10 & 84.00 & 59.90 & 7.40 \\ 
+  Targeting differential & g.MaterialPoor\&WorkPoor & 24.80 & 36.10 & -31.80 & -12.40 & 6.10 & 53.50 \\ 
+  Type 2 error (undercoverage) & h.IncomePoor\&MaterialPoor\&WorkPoor & 17.70 & 75.30 & 75.40 & 56.80 & 37.40 & 5.60 \\ 
+  Targeting differential & h.IncomePoor\&MaterialPoor\&WorkPoor & 56.60 & -27.20 & -25.10 & 12.60 & 28.00 & 59.00 \\ 
+   \hline
+\end{tabular}
+}
+\end{center}
+\end{table}
+%######################################################################
+%######################################################################
+
+
+%######################################################################
+%######################################################################
+
+
+
+%######################################################################
+%######################################################################
+
+\subsubsection*{Targeting performance}
+
+In the final section of analysis the Coady-Grosh-Hoddinot indicator will be used to shed more light into capacity of social assistance benefits to reduce poverty by taking the value of the transfers into account. Indicator used here is explained in detail in section 4, but to summarize it, a value greater than 1 indicates progressive targeting, whereas value less than 1 means regressive targeting. Value of 1 denotes neutral targeting \citep{coady_targeting_2004}
+
+Figure 13 presents the values of Coady-Grosh-Hoddinot indicator for for each three individual EU2020 subindicator as well for the joint indicator of at risk of poverty and social exclusion. The dotted grey line marks the line of neutral targeting and values above it account for progressive targeting.
+
+As for income poor individuals the indicator show a great variations between countries, with Italy having a regressive targeting while in Germany the income poor are receiving nine times higher benefits than income non-poor. Differences level when looking at the material deprivation with Denmark and Italy improving the performance. As for the low work intensity the German, Danish and British system perform the best. Overall targeting performance at joint indicator shows Italy with nearly neutral targeting and on the contrary, Germany with highly progressive targeting with value of 14.2.
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig28, echo=FALSE, results='markup', dev='square', fig.ext='pdf', fig.cap="Coady-Grosh-Hoddinott indicator of targeting performance of social assistance benefits on at risk of poverty and social exclusion and sub-indicators. Source: EU-SILC 2010", fig.pos="H", cache=TRUE, warning=FALSE>>=
+
+########################################################
+########################################################
+##          Coady-Grosh-Hoddinott indicator           ##
+########################################################
+########################################################
+## income poverty
+# 1) find the total benefit sum
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+income_poor, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ income_poor, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$inc.poor/bnf.ratio.w$inc.non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~income_poor, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+plot1 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=3) + 
+  opts(title="Income poor individuals") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+    geom_hline(aes(yintercept=1), colour="Dim Grey", linetype="dashed") +
+    coord_cartesian(ylim=c(0,15))
+
+  
+
+## material poverty
+# 1) find the total benefit sum
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+material_poor, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ material_poor, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$mt.poor/bnf.ratio.w$mt.non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~material_poor, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+
+plot2 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=3) + 
+  opts(title="Materially deprived individuals") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", linetype="dashed") +
+    coord_cartesian(ylim=c(0,15))
+
+## work poverty
+# 1) find the total benefit sum
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+work_poor, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ work_poor, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$work.poor/bnf.ratio.w$work.non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~work_poor, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+
+plot3 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=3) + 
+  opts(title="Low work intensity individuals") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", linetype="dashed") +
+    coord_cartesian(ylim=c(0,15))
+  
+
+## social exclusion and poverty
+# 1) find the total benefit sum
+bnf.ratio <- data.frame(svyby(~socass, ~RB020+multi, d.df, svytotal)) # benefit-ratio
+bnf.ratio$se <- NULL
+bnf.ratio.w <- dcast(bnf.ratio, RB020 ~ multi, value.var="socass") # to wide
+bnf.ratio.w$bnf.ratio <- bnf.ratio.w$poor/bnf.ratio.w$non.poor
+
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+pop.ratio <- svyby(~multi, ~RB020, d.df, svytotal) # population-ratio
+names(pop.ratio) <- c("RB020","nonpoor","poor","senonpoor","sepoor")
+pop.ratio <- subset(pop.ratio, select=c("RB020","nonpoor","poor"))
+pop.ratio$pop.ratio <- pop.ratio$poor / pop.ratio$nonpoor
+#
+bnf.ratio.w <- subset(bnf.ratio.w, select=c("RB020","bnf.ratio"))
+pop.ratio <- subset(pop.ratio, select=c("RB020","pop.ratio"))
+
+cgh <- join(bnf.ratio.w,pop.ratio,by="RB020")
+cgh$cgh <-  round(cgh$bnf.ratio/cgh$pop.ratio, 1)
+
+plot4 <- ggplot(cgh, aes(x=RB020, y=cgh, label=cgh)) +
+  geom_bar(stat="identity", fill="#56B4E9") + geom_text(size=3) + 
+  opts(title="At risk of poverty and social exclusion") +
+  labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", linetype="dashed") +
+    coord_cartesian(ylim=c(0,15))
+
+## social exclusion and poverty
+## material poverty
+# 1) find the total benefit sum
+df.bnf.r <- data.frame(svyby(~socass, ~RB020+multidim2, d.df, svytotal)) # benefit-ratio
+df.bnf.r$se <- NULL
+names(df.bnf.r) <- c("RB020","variable","socass")
+#cgh.bnf <- dcast(df.bnf.r, RB020 ~ multidim2, value.var="socass") # to wide
+#names(cgh.bnf) <- c("RB020","bnf.nonpoor","bnf.poor")
+# 2) find the total n of both groups
+cgh.nr <- data.frame(svyby(~multidim2, ~RB020, d.df, svytotal)) # population-ratio
+cgh.nr.w <- melt(data=cgh.nr, id.vars="RB020")
+cgh.nr.w <- head(cgh.nr.w, 48)
+
+library(stringr)
+cgh.nr.w$variable <- str_replace_all(cgh.nr.w$variable, "multidim2", "")
+df.bnf.r$variable <- str_replace_all(df.bnf.r$variable, "&", ".")
+
+cgh.multi <- join(df.bnf.r,cgh.nr.w,by=c("RB020","variable"))
+
+cgh.multi$meanbnf <- cgh.multi$socass/cgh.multi$value
+cgh.multi.non.poor <- subset(cgh.multi, variable %in% 'a.non.poor', 
+                             select=c("RB020","meanbnf"))
+names(cgh.multi.non.poor) <- c("RB020","meanbnf_nonpoor")
+
+cgh.multi.poor <- subset(cgh.multi, variable != 'a.non.poor', 
+                             select=c("RB020","variable","meanbnf"))
+
+cgh.multi.merge <- join(cgh.multi.poor,cgh.multi.non.poor,by="RB020")
+cgh.multi.merge$cgh <- round(cgh.multi.merge$meanbnf / cgh.multi.merge$meanbnf_nonpoor, 1)
+
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(2,2)))
+print(plot1, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=1))
+print(plot2, vp=viewport(layout.pos.row=1, 
+                         layout.pos.col=2))
+print(plot3, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=1))
+print(plot4, vp=viewport(layout.pos.row=2, 
+                         layout.pos.col=2))
+@
+
+%######################################################################
+%######################################################################
+Corresponding figures for independent and overlapping population shares of EU2020 poverty target are presented in figure 14. Again, the independent value of each dimension are at the bottom and overlapping groups higher up. In UK, Germany, Poland and Romania the targeting performance improves when there is more overlap between countries, with Poland and Romania having the highest targeting at individual deprived in all three dimensions of 26 and 16, respectively. UK, Germany and Denmark record highest targeting at individual deprived both in materially and in work intensity, with the highest value of 34.5 in Germany. This means, that individuals belonging to this group receive, on average, 34.5 times higher social assistance benefits than non-poor individuals.
+
+%######################################################################
+%######################################################################
+
+<<chunk_fig29, echo=FALSE, results='markup', dev='square', fig.ext='pdf', fig.cap="Coady-Grosh-Hoddinott indicator of targeting performance of social assistance benefits on independent and overlapping population shares of EU2020 poverty target. Source: EU-SILC 2010", fig.pos="H", cache=TRUE, warning=FALSE>>=
+ggplot(cgh.multi.merge, aes(x=variable, y=cgh, label=cgh)) + facet_wrap(~RB020) +
+  geom_bar(stat="identity", fill="#56B4E9") + coord_flip() +
+  geom_text(size=3) +   labs(y="Coady-Grosh-Hoddinott indicator", x="") +
+  geom_hline(aes(yintercept=1), colour="Dim Grey", linetype="dashed")
+
+@
+
+%######################################################################
+%######################################################################
+
+
+\section{Conclusions}
+
+The aim of the paper was to analyse to what extend current social assistance schemes are capable of addressing the poor individual identified according to new EU2020 poverty target. As the political target is set in absolute terms as to \emph{lift at least 20 million people out of poverty and social exclusion by 2020}, five of the EU six largest countries added with Denmark were chosen for the analysis.
+
+The link between minimum income protection policies and income poverty is obvious and to some extend also with material deprivation \citep{nelson_counteracting_2012}. However, the link between low work intensity is a lot less obvious. Reduction of low work intensity is calling for very different kind of policy measure and effect of social assistance is indirect at best. Still, social assistance being the key political measure in alleviation of poverty, it is essential to analyse to what extend these scemes are able to meet with the new formulation of poverty.
+
+When looking at the overlap of subindicators it is clear that each of these indicators are equally apart from each other and the overlap is only modest. Low work intensity is not more self-contained than material deprivation. The relative share of dimensions varies especially between old and new member states: material deprivation is higher and low work intensity lower in Romania and Poland than in their Western counterparts. However, when looking at the absolute figures one can say that the population size dictates. Highest number of poor are living in the most populous member countries, which was certainly know when setting up the target of 20 million.
+
+Despite the independence of these dimensions of poverty the social assistance is treating them relatively equally. Main variation is found between countries than between poverty subgroups, but this calls for more precise explorative analysis. When looking at Coady-Grosh-Hoddinott indicator the individual deprived in terms of low work intensity are actually benefiting more from the social assistance than income poor in all old member states. 
+
+This analysis suggests that, in this particular context, policies that are directed exclusively towards one of the indicators may fail to reduce the degree of deprivation of a large proportion of individuals. From the policy perspective it is important to monitor all the three indicators, but equally important is to pay attention the degree of overlap as it will also help shape policies to address these particular shortfalls.
+
+
+\addcontentsline{toc}{section}{References}
+\bibliography{bibtex}
+\bibliographystyle{apa-good}
+
+
+%\begin{appendices}
+%\section{Some more figures}
+
+%\end{appendices}
+
+
+
+\end{document}
